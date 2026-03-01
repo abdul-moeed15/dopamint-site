@@ -1,0 +1,12 @@
+{
+  "name": "dopamint-site",
+  "version": "1.0.0",
+  "description": "DopaMint marketing site",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "marked": "^9.1.6"
+  }
+}

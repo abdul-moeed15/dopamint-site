@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DopaMint — AI ADHD Productivity Tool | Free Task Breakdown</title>
+  <meta name="description" content="Paste any overwhelming task. Get tiny, dopamine-friendly micro-steps your ADHD brain can actually start. Free forever. No sign-up required to try." />
+  <meta name="keywords" content="ADHD productivity, ADHD app, task breakdown, executive dysfunction, focus tool, ADHD planner" />
+  <meta property="og:title" content="DopaMint — Finally, a tool that gets your ADHD brain" />
+  <meta property="og:description" content="Paste any overwhelming task. Get tiny, dopamine-friendly steps you can start right now. Free to try — no sign-up needed." />
+  <meta property="og:url" content="https://dopamint.app" />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://dopamint.app" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background-color: #FAFAF9; color: #111827; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    textarea, input { font-family: inherit; }
+
+    /* Animations */
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes btnGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.4); }
+      50% { box-shadow: 0 0 20px 6px rgba(124,58,237,0.25); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .fade-in-up { animation: fadeInUp 0.6s ease forwards; }
+    .dot-bounce { animation: bounce 1s ease-in-out infinite; }
+    .dot-bounce:nth-child(2) { animation-delay: 0.15s; }
+    .dot-bounce:nth-child(3) { animation-delay: 0.3s; }
+    .spinner { animation: spin 0.7s linear infinite; }
+
+    /* Scroll fade in */
+    .scroll-fade { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .scroll-fade.visible { opacity: 1; transform: translateY(0); }
+
+    /* Slider styling */
+    input[type=range] { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 4px; background: linear-gradient(to right, #EDE9FE, #7C3AED); outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #7C3AED; cursor: pointer; box-shadow: 0 2px 6px rgba(124,58,237,0.4); }
+    input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #7C3AED; cursor: pointer; border: none; }
+
+    /* Navbar */
+    #navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; transition: all 0.3s ease; }
+    #navbar.scrolled { background-color: rgba(14,8,35,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(167,139,250,0.15); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 20px; font-weight: 800; color: #fff; }
+    .nav-btns { display: flex; align-items: center; gap: 12px; }
+    .btn-signin { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); padding: 8px 16px; border-radius: 8px; transition: color 0.2s; }
+    .btn-signin:hover { color: #fff; }
+    .btn-started { font-size: 14px; font-weight: 700; padding: 8px 20px; border-radius: 999px; background: #fff; color: #7C3AED; transition: all 0.3s; white-space: nowrap; }
+    #navbar.scrolled .btn-started { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-started:hover { transform: scale(1.04); }
+
+    /* Hero */
+    #hero { position: relative; padding: 112px 24px 64px; overflow: hidden; background: linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%); }
+    .hero-dots { position: absolute; inset: 0; z-index: 1; pointer-events: none; background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px); background-size: 24px 24px; }
+    .blob { position: absolute; pointer-events: none; z-index: 1; border-radius: 50%; }
+    .blob-1 { top: 10%; right: 10%; width: 350px; height: 350px; background: #9333EA; opacity: 0.35; filter: blur(70px); }
+    .blob-2 { bottom: 5%; left: 5%; width: 280px; height: 280px; background: #6D28D9; opacity: 0.3; filter: blur(60px); }
+    .blob-3 { top: 40%; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; background: #A855F7; opacity: 0.2; filter: blur(50px); }
+    .hero-inner { position: relative; z-index: 10; max-width: 780px; margin: 0 auto; text-align: center; }
+    .eyebrow { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; border-radius: 999px; padding: 6px 16px; margin-bottom: 24px; background: rgba(255,255,255,0.15); color: #fff; }
+    .hero-h1 { font-size: clamp(32px, 6vw, 56px); font-weight: 900; line-height: 1.1; margin-bottom: 20px; color: #fff; }
+    .hero-h1 span { color: #F59E0B; }
+    .hero-sub { font-size: clamp(16px, 2.5vw, 20px); margin-bottom: 16px; max-width: 560px; margin-left: auto; margin-right: auto; color: rgba(255,255,255,0.8); line-height: 1.6; }
+    .tasks-badge { font-size: 14px; font-weight: 600; margin-bottom: 40px; color: #F59E0B; }
+
+    /* Task Widget */
+    #widget { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 32px; text-align: left; box-shadow: 0 30px 70px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.12); animation: floatCard 5s ease-in-out infinite; }
+    .widget-label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #374151; }
+    .widget-textarea { width: 100%; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; font-size: 14px; resize: none; outline: none; color: #111827; transition: border-color 0.2s; }
+    .widget-textarea:focus { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+    .slider-wrap { margin: 20px 0; }
+    .slider-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+    .slider-label { font-size: 11px; color: #9CA3AF; transition: color 0.2s; }
+    .slider-label.active { color: #7C3AED; font-weight: 600; }
+    .guest-counter { text-align: right; margin-bottom: 12px; font-size: 12px; color: #9CA3AF; }
+    .guest-counter.warning { color: #D97706; font-weight: 600; }
+    .btn-crush { width: 100%; height: 52px; border-radius: 12px; font-weight: 700; font-size: 17px; color: #fff; background: #7C3AED; transition: all 0.2s; animation: btnGlow 2.5s ease-in-out infinite; }
+    .btn-crush:hover:not(:disabled) { background: #6D28D9; transform: translateY(-1px); }
+    .btn-crush:disabled { opacity: 0.6; cursor: not-allowed; background: #D97706; animation: none; }
+    .btn-crush.limit { background: #D97706; animation: none; }
+    .loading-dots { display: flex; justify-content: center; gap: 6px; margin-top: 24px; }
+    .loading-dot { width: 10px; height: 10px; border-radius: 50%; background: #7C3AED; }
+    .widget-error { margin-top: 16px; font-size: 14px; text-align: center; color: #DC2626; }
+    .steps-result { margin-top: 24px; border-radius: 12px; padding: 20px; border-left: 4px solid #7C3AED; border-top: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB; }
+    .steps-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #7C3AED; }
+    .step-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+    .step-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #7C3AED; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .step-content { flex: 1; }
+    .step-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .step-text { font-size: 14px; font-weight: 500; color: #111827; }
+    .step-time { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #FEF3C7; color: #92400E; white-space: nowrap; }
+    .step-tip { font-size: 12px; font-style: italic; color: #9CA3AF; margin-top: 4px; }
+    .steps-signup { text-align: center; margin-top: 24px; font-size: 14px; font-weight: 500; color: #D97706; text-decoration: underline; }
+
+    /* Social Proof Strip */
+    #social-proof { background: #5B21B6; padding: 20px 24px; }
+    .social-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px 48px; }
+    .proof-item { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 500; }
+    .proof-icon { width: 20px; height: 20px; }
+
+    /* Section shared */
+    .section-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; border-radius: 999px; padding: 6px 16px; margin-bottom: 16px; background: #EDE9FE; color: #7C3AED; }
+    .section-h2 { font-size: clamp(24px, 4vw, 32px); font-weight: 800; color: #111827; }
+
+    /* How It Works */
+    #how-it-works { background: #F5F3FF; padding: 80px 24px; }
+    .hiw-inner { max-width: 1200px; margin: 0 auto; }
+    .hiw-heading { text-align: center; margin-bottom: 56px; }
+    .hiw-grid { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: stretch; justify-content: center; gap: 0; }
+    .hiw-card-wrap { display: flex; align-items: stretch; }
+    .hiw-card { flex: 1; border-radius: 16px; padding: 28px; background: #fff; border: 1px solid #E5E7EB; border-top: 4px solid var(--card-color); box-shadow: 0 4px 16px rgba(0,0,0,0.06); min-width: 260px; max-width: 320px; }
+    .hiw-icon { width: 40px; height: 40px; margin-bottom: 12px; }
+    .hiw-h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; color: #111827; }
+    .hiw-p { font-size: 14px; line-height: 1.6; color: #6B7280; }
+    .hiw-arrow { display: flex; align-items: center; padding: 0 16px; }
+    .hiw-illus { margin-top: 16px; }
+    .illus-bar { height: 12px; border-radius: 999px; margin-bottom: 8px; }
+    .illus-step { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: #EDE9FE; margin-bottom: 8px; }
+    .illus-step-num { width: 20px; height: 20px; border-radius: 50%; background: #7C3AED; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .illus-step-bar { height: 10px; border-radius: 999px; background: #D8B4FE; flex: 1; }
+    .illus-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .illus-badge { font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: #FEF3C7; color: #92400E; }
+
+    /* Feature Cards */
+    #features { background: #fff; padding: 80px 24px; }
+    .features-inner { max-width: 1200px; margin: 0 auto; }
+    .features-layout { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
+    .features-left { flex: 0 0 300px; }
+    .features-left p { font-size: 15px; line-height: 1.7; color: #6B7280; margin-top: 16px; }
+    .features-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; min-width: 0; }
+    .feature-card { border-radius: 16px; padding: 20px; border: 1px solid #E5E7EB; transition: box-shadow 0.2s, transform 0.2s; }
+    .feature-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .feature-icon { width: 32px; height: 32px; margin-bottom: 12px; }
+    .feature-h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .feature-p { font-size: 13px; line-height: 1.6; }
+
+    /* Stats */
+    #stats { background: #7C3AED; padding: 48px 24px; }
+    .stats-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 40px 64px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 32px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+    .stat-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.75); }
+
+    /* Comparison */
+    #comparison { background: #F5F3FF; padding: 80px 16px; }
+    .comparison-inner { max-width: 900px; margin: 0 auto; }
+    .comparison-heading { text-align: center; margin-bottom: 48px; }
+    .comparison-heading p { font-size: 17px; color: #6B7280; margin-top: 12px; }
+    .comparison-table { overflow-x: auto; }
+    .comp-grid { min-width: 580px; display: grid; grid-template-columns: 1fr repeat(3, 100px); }
+    .comp-header-dm { background: #7C3AED; border-radius: 12px 12px 0 0; padding: 20px; }
+    .comp-header-dm span { font-size: 17px; font-weight: 800; color: #fff; }
+    .comp-header-other { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 12px 8px; gap: 6px; }
+    .comp-header-other .comp-logo { font-size: 20px; }
+    .comp-header-other span { font-size: 13px; font-weight: 600; color: #6B7280; }
+    .comp-cell-dm { background: #fff; border-left: 1px solid #EDE9FE; border-right: 1px solid #EDE9FE; padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+    .comp-cell-dm:last-of-type { border-bottom: 1px solid #EDE9FE; border-radius: 0 0 12px 12px; padding-bottom: 20px; }
+    .comp-cell-dm .check-icon { color: #059669; flex-shrink: 0; }
+    .comp-cell-dm span { font-size: 13px; font-weight: 600; color: #111827; }
+    .comp-cell-other { display: flex; align-items: center; justify-content: center; padding: 14px 8px; }
+    .comp-cell-other.alt { background: rgba(124,58,237,0.05); }
+    .check-green { color: #059669; }
+    .x-red { color: rgba(220,38,38,0.6); }
+    .partly { font-size: 11px; font-weight: 700; color: #9CA3AF; }
+
+    /* Testimonials */
+    #testimonials { background: #fff; padding: 80px 24px; }
+    .testimonials-inner { max-width: 1200px; margin: 0 auto; }
+    .testimonials-h2 { font-size: clamp(24px, 4vw, 32px); font-weight: 800; color: #111827; text-align: center; margin-bottom: 48px; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .testimonial-card { background: #fff; border-radius: 16px; padding: 24px; border: 1px solid #E5E7EB; border-left: 3px solid #7C3AED; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.2s; }
+    .testimonial-card:hover { box-shadow: 0 8px 24px rgba(124,58,237,0.1); }
+    .stars { display: flex; gap: 4px; margin-bottom: 16px; }
+    .star { color: #F59E0B; font-size: 16px; }
+    .testimonial-quote { font-size: 14px; line-height: 1.7; color: #374151; margin-bottom: 16px; }
+    .testimonial-author { font-size: 14px; font-weight: 700; color: #111827; }
+    .testimonial-label { font-weight: 400; color: #6B7280; }
+
+    /* CTA Section */
+    #cta { background: linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%); padding: 80px 24px; position: relative; overflow: hidden; }
+    .cta-inner { max-width: 1060px; margin: 0 auto; text-align: center; position: relative; z-index: 10; }
+    .cta-h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; color: #fff; margin-bottom: 20px; }
+    .cta-sub { font-size: 17px; color: rgba(255,255,255,0.8); margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .btn-cta { font-size: 16px; font-weight: 700; padding: 14px 32px; border-radius: 999px; background: #fff; color: #7C3AED; transition: transform 0.2s; display: inline-block; }
+    .btn-cta:hover { transform: scale(1.05); }
+    .cta-cards { margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .cta-card { background: #fff; border-radius: 16px; padding: 20px; text-align: left; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .cta-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .cta-card-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(124,58,237,0.12); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .cta-card-title { font-size: 14px; font-weight: 700; color: #7C3AED; }
+    .cta-task-label { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 12px; }
+    .cta-steps { }
+    .cta-step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .cta-step-num { width: 20px; height: 20px; border-radius: 50%; background: #7C3AED; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .cta-step-text { font-size: 12px; color: #374151; }
+    .cta-footer-note { font-size: 12px; color: #059669; display: flex; align-items: center; gap: 4px; margin-top: 12px; font-weight: 500; }
+    .brain-dump-input { border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px; margin-bottom: 12px; background: #F9FAFB; }
+    .brain-dump-input p { font-size: 12px; font-style: italic; color: #6B7280; }
+    .sorted-label { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+    .sorted-label span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+    .dump-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .dump-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+    .dump-text { font-size: 12px; color: #374151; }
+    .mood-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .mood-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 2px solid #E5E7EB; background: #fff; transition: all 0.2s; }
+    .mood-btn.selected { border-color: #7C3AED; background: rgba(124,58,237,0.08); transform: scale(1.15); box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
+    .mood-note { border-radius: 12px; padding: 12px; background: #FFF7ED; border: 1px solid #FED7AA; margin-bottom: 12px; }
+    .mood-note p { font-size: 12px; color: #92400E; }
+    .mood-steps-label { font-size: 10px; color: #9CA3AF; margin-bottom: 8px; }
+    .mood-step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .mood-step-num { width: 16px; height: 16px; border-radius: 50%; background: #7C3AED; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .mood-step-text { font-size: 11px; color: #374151; }
+
+    /* FAQ */
+    #faq { background: #F5F3FF; padding: 80px 24px; }
+    .faq-inner { max-width: 720px; margin: 0 auto; }
+    .faq-h2 { font-size: clamp(24px, 4vw, 32px); font-weight: 800; color: #111827; text-align: center; margin-bottom: 48px; }
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+    .faq-item { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; }
+    .faq-question { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-align: left; cursor: pointer; }
+    .faq-question span { font-size: 14px; font-weight: 700; color: #111827; padding-right: 16px; }
+    .faq-chevron { width: 20px; height: 20px; color: #9CA3AF; transition: transform 0.3s; flex-shrink: 0; }
+    .faq-chevron.open { transform: rotate(180deg); }
+    .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+    .faq-answer.open { max-height: 200px; padding: 0 20px 16px; }
+    .faq-answer p { font-size: 14px; line-height: 1.7; color: #6B7280; }
+
+    /* Footer */
+    #footer { background: #0E0823; padding: 56px 24px 24px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 40px; margin-bottom: 48px; }
+    .footer-brand h3 { font-size: 22px; font-weight: 800; color: #A78BFA; margin-bottom: 8px; }
+    .footer-brand p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+    .footer-col h4 { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .footer-col a { display: block; font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 8px; transition: color 0.2s; }
+    .footer-col a:hover { color: rgba(255,255,255,0.8); }
+    .footer-social { display: flex; gap: 16px; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; text-align: center; }
+    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+    /* Gate Modal */
+    #gate-modal { display: none; position: fixed; inset: 0; z-index: 200; }
+    #gate-modal.open { display: flex; align-items: flex-end; justify-content: center; }
+    .gate-overlay { position: absolute; inset: 0; backdrop-filter: blur(4px); background: rgba(0,0,0,0.3); }
+    .gate-card { position: relative; background: #fff; border-radius: 20px 20px 0 0; max-width: 600px; width: 100%; padding: 32px; z-index: 10; animation: slideUp 0.3s ease; text-align: center; }
+    .gate-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #9CA3AF; cursor: pointer; transition: color 0.2s; background: none; border: none; font-size: 20px; }
+    .gate-close:hover { color: #6B7280; }
+    .gate-emoji { font-size: 48px; margin-bottom: 16px; }
+    .gate-h3 { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 8px; }
+    .gate-p { font-size: 15px; color: #6B7280; max-width: 400px; margin: 0 auto 32px; line-height: 1.6; }
+    .btn-gate-primary { width: 100%; border-radius: 999px; padding: 16px; color: #fff; font-weight: 700; font-size: 15px; background: #7C3AED; margin-bottom: 8px; transition: background 0.2s; display: block; }
+    .btn-gate-primary:hover { background: #6D28D9; }
+    .btn-gate-secondary { width: 100%; border-radius: 999px; padding: 12px; font-weight: 700; font-size: 15px; border: 2px solid #7C3AED; color: #7C3AED; background: #fff; margin-bottom: 16px; transition: all 0.2s; display: block; }
+    .btn-gate-secondary:hover { background: #F5F3FF; }
+    .gate-signin { font-size: 14px; color: #9CA3AF; }
+    .gate-signin a { color: #7C3AED; font-weight: 600; text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-inner { padding: 0 16px; height: 56px; }
+      .nav-btns { gap: 8px; }
+      .btn-signin { padding: 6px 10px; font-size: 13px; }
+      .btn-started { padding: 6px 14px; font-size: 13px; }
+
+      #hero { padding: 96px 16px 48px; }
+      #how-it-works { padding: 60px 16px; }
+      #features { padding: 60px 16px; }
+      #stats { padding: 60px 16px; }
+      #comparison { padding: 60px 16px; }
+      #testimonials { padding: 60px 16px; }
+      #cta { padding: 60px 16px; }
+      #faq { padding: 60px 16px; }
+      footer { padding: 48px 16px 24px; }
+
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-layout { gap: 32px; }
+      .features-left { flex: 0 0 100%; position: static; }
+
+      .hiw-grid { flex-direction: column; align-items: center; }
+      .hiw-arrow { display: none; }
+      .hiw-card { max-width: 100%; width: 100%; }
+
+      .cta-cards { grid-template-columns: 1fr; }
+
+      #widget { padding: 20px; }
+      #widget h3 { font-size: 18px; }
+
+      .stats-inner { gap: 24px 40px; }
+      .stat-value { font-size: 28px; }
+
+      .social-inner { gap: 16px 32px; }
+
+      .gate-card { padding: 24px 20px; }
+    }
+    @media (max-width: 480px) {
+      .nav-logo { font-size: 16px; }
+      .btn-signin { display: none; }
+      .btn-started { padding: 7px 16px; font-size: 13px; }
+
+      .features-grid { grid-template-columns: 1fr; }
+
+      .testimonials-grid { grid-template-columns: 1fr; }
+
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+
+      .comp-grid { grid-template-columns: 1fr repeat(3, 80px); }
+      .comp-cell-dm span { font-size: 12px; }
+      .comp-header-other span { font-size: 11px; }
+
+      #widget { border-radius: 16px; }
+      .tasks-badge { font-size: 13px; }
+
+      .proof-item { gap: 8px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-logo">🧠 DopaMint</span>
+    <div class="nav-btns">
+      <a href="https://app.dopamint.app/login" class="btn-signin">Sign In</a>
+      <a href="https://app.dopamint.app/signup" class="btn-started">Get Started Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-dots"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="hero-inner">
+    <span class="eyebrow">Free ADHD Tool · No Sign-Up Required</span>
+    <h1 class="hero-h1">Finally, a tool that <span>gets your ADHD brain</span></h1>
+    <p class="hero-sub">Paste any overwhelming task. Get tiny, dopamine-friendly steps you can start right now.</p>
+    <p class="tasks-badge" id="tasks-badge">🔥 1,200+ tasks already crushed</p>
+
+    <!-- Task Widget -->
+    <div id="widget">
+      <label class="widget-label">What's overwhelming you right now?</label>
+      <textarea id="task-input" class="widget-textarea" rows="3" maxlength="500"
+        placeholder="e.g. 'Clean my entire apartment' or 'Start writing that report I've been avoiding for 2 weeks'"></textarea>
+
+      <div class="slider-wrap">
+        <label class="widget-label">How tiny do you need the steps?</label>
+        <input type="range" id="spiciness" min="3" max="7" step="1" value="5" />
+        <div class="slider-labels">
+          <span class="slider-label" data-val="3">Easy mode</span>
+          <span class="slider-label" data-val="4">Medium</span>
+          <span class="slider-label active" data-val="5">Focused</span>
+          <span class="slider-label" data-val="6">Very tiny</span>
+          <span class="slider-label" data-val="7">Ultra tiny</span>
+        </div>
+      </div>
+
+      <div class="guest-counter" id="guest-counter">0 of 3 free uses today</div>
+
+      <button id="crush-btn" class="btn-crush">Break It Down →</button>
+
+      <p class="widget-error" id="widget-error" style="display:none"></p>
+
+      <div class="loading-dots" id="loading-dots" style="display:none">
+        <div class="loading-dot dot-bounce"></div>
+        <div class="loading-dot dot-bounce"></div>
+        <div class="loading-dot dot-bounce"></div>
+      </div>
+
+      <div class="steps-result" id="steps-result" style="display:none">
+        <p class="steps-title">Here's your plan:</p>
+        <div id="steps-list"></div>
+        <p class="steps-signup">
+          <a href="https://app.dopamint.app/signup">Sign up free to save this plan + get 5 every day →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SOCIAL PROOF STRIP ═══ -->
+<section id="social-proof">
+  <div class="social-inner">
+    <div class="proof-item">
+      <svg class="proof-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <span id="user-count-strip">Trusted by 1,300+ ADHD brains</span>
+    </div>
+    <div class="proof-item">
+      <svg class="proof-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      <span>5 free AI breakdowns every day</span>
+    </div>
+    <div class="proof-item">
+      <svg class="proof-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>Works on any device</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="how-it-works">
+  <div class="hiw-inner">
+    <div class="hiw-heading scroll-fade">
+      <span class="section-badge">How it works</span>
+      <h2 class="section-h2" style="margin-top:8px">Three steps. Zero overwhelm.</h2>
+    </div>
+    <div class="hiw-grid scroll-fade">
+      <!-- Step 1 -->
+      <div class="hiw-card-wrap">
+        <div class="hiw-card" style="--card-color: #7C3AED">
+          <svg class="hiw-icon" style="color:#7C3AED" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <h3 class="hiw-h3">Dump the overwhelm</h3>
+          <p class="hiw-p">Type any task — no matter how massive or vague. DopaMint has seen it all.</p>
+          <div class="hiw-illus">
+            <div class="illus-bar" style="background:#DDD6FE;width:80%"></div>
+            <div class="illus-bar" style="background:#EDE9FE;width:55%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hiw-arrow">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </div>
+      <!-- Step 2 -->
+      <div class="hiw-card-wrap">
+        <div class="hiw-card" style="--card-color: #F59E0B">
+          <svg class="hiw-icon" style="color:#D97706" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          <h3 class="hiw-h3">It breaks it down</h3>
+          <p class="hiw-p">DopaMint turns it into tiny, specific steps your brain actually wants to start.</p>
+          <div class="hiw-illus">
+            <div class="illus-step"><div class="illus-step-num">1</div><div class="illus-step-bar" style="width:90%"></div></div>
+            <div class="illus-step"><div class="illus-step-num">2</div><div class="illus-step-bar" style="width:75%"></div></div>
+            <div class="illus-step"><div class="illus-step-num">3</div><div class="illus-step-bar" style="width:60%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="hiw-arrow">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </div>
+      <!-- Step 3 -->
+      <div class="hiw-card-wrap">
+        <div class="hiw-card" style="--card-color: #10B981">
+          <svg class="hiw-icon" style="color:#059669" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <h3 class="hiw-h3">Check off and feel it</h3>
+          <p class="hiw-p">XP, streaks, and momentum. DopaMint remembers your wins — even on bad brain days.</p>
+          <div class="illus-badges">
+            <span class="illus-badge">🔥 5-day streak</span>
+            <span class="illus-badge">+25 XP</span>
+            <span class="illus-badge">Level 3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features">
+  <div class="features-inner">
+    <div class="features-layout">
+      <div class="features-left scroll-fade">
+        <span class="section-badge">All-in-one ADHD toolkit</span>
+        <h2 class="section-h2" style="margin-top:8px">Everything your ADHD brain needs</h2>
+        <p>Built by ADHD brains, for ADHD brains. Every feature is designed to reduce overwhelm and build momentum.</p>
+      </div>
+      <div class="features-grid scroll-fade">
+        <div class="feature-card" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);border-color:transparent">
+          <svg class="feature-icon" style="color:#fff" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <h3 class="feature-h3" style="color:#fff">AI Task Crusher</h3>
+          <p class="feature-p" style="color:rgba(255,255,255,0.8)">Paste any overwhelming task. Get 5-8 micro-steps in seconds with time estimates and tips.</p>
+        </div>
+        <div class="feature-card">
+          <svg class="feature-icon" style="color:#7C3AED" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <h3 class="feature-h3">Mood-Adaptive</h3>
+          <p class="feature-p" style="color:#6B7280">Bad brain day? DopaMint adjusts step difficulty so you still make progress.</p>
+        </div>
+        <div class="feature-card">
+          <svg class="feature-icon" style="color:#D97706" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+          <h3 class="feature-h3">Streak + XP</h3>
+          <p class="feature-p" style="color:#6B7280">Build momentum with daily streaks, XP, and levels. Streak Shield protects bad days.</p>
+        </div>
+        <div class="feature-card">
+          <svg class="feature-icon" style="color:#059669" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          <h3 class="feature-h3">Body Doubling Sounds</h3>
+          <p class="feature-p" style="color:#6B7280">Work alongside 6 immersive soundscapes — rain, café, lo-fi beats, and more.</p>
+        </div>
+        <div class="feature-card" style="background:#EDE9FE">
+          <svg class="feature-icon" style="color:#7C3AED" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <h3 class="feature-h3">Brain Dump</h3>
+          <p class="feature-p" style="color:#6B7280">Type every cluttering thought. Sorts it into tasks, ideas, worries, and deletions.</p>
+        </div>
+        <div class="feature-card">
+          <svg class="feature-icon" style="color:#7C3AED" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <h3 class="feature-h3">Progress Analytics</h3>
+          <p class="feature-p" style="color:#6B7280">See patterns. Your coach gives weekly insights based on your actual data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section id="stats">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-value" id="stat-counter">0+</div>
+      <div class="stat-label">tasks crushed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">5</div>
+      <div class="stat-label">free breakdowns / day</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">📱💻</div>
+      <div class="stat-label">Works on phone + desktop</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPARISON ═══ -->
+<section id="comparison">
+  <div class="comparison-inner">
+    <div class="comparison-heading scroll-fade">
+      <h2 class="section-h2">How we compare</h2>
+      <p>Most tools forget you the moment you close the tab.</p>
+    </div>
+    <div class="comparison-table scroll-fade">
+      <div class="comp-grid">
+        <!-- Header row -->
+        <div class="comp-header-dm"><span>🧠 DopaMint</span></div>
+        <div class="comp-header-other"><span class="comp-logo">🤖</span><span>ChatGPT</span></div>
+        <div class="comp-header-other"><span class="comp-logo">📝</span><span>Notion AI</span></div>
+        <div class="comp-header-other"><span class="comp-logo">✅</span><span>Todoist</span></div>
+        <!-- Feature rows -->
+        <div class="comp-cell-dm"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Remembers your history</span></div>
+        <div class="comp-cell-other"><svg class="check-green" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="comp-cell-other alt"><span class="partly">Partly</span></div>
+        <div class="comp-cell-other"><svg class="check-green" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
+
+        <div class="comp-cell-dm"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Adapts to your mood</span></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+
+        <div class="comp-cell-dm"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Tracks your progress</span></div>
+        <div class="comp-cell-other"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other alt"><span class="partly">Partly</span></div>
+        <div class="comp-cell-other"><svg class="check-green" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>
+
+        <div class="comp-cell-dm"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Celebrates your wins</span></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+
+        <div class="comp-cell-dm"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Works offline (PWA)</span></div>
+        <div class="comp-cell-other"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+
+        <div class="comp-cell-dm"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>No sign-up to try</span></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+
+        <div class="comp-cell-dm" style="border-radius:0 0 0 12px;border-bottom:1px solid #EDE9FE"><svg class="check-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Free tier, always</span></div>
+        <div class="comp-cell-other"><span class="partly">Partly</span></div>
+        <div class="comp-cell-other alt"><svg class="x-red" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="comp-cell-other"><span class="partly">Partly</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section id="testimonials">
+  <div class="testimonials-inner">
+    <h2 class="testimonials-h2 scroll-fade">From ADHD brains who tried it</h2>
+    <div class="testimonials-grid scroll-fade">
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-quote">"I've tried every ADHD productivity app out there. DopaMint is the first one I've kept using past week one — because it doesn't make me feel bad on the days I miss."</p>
+        <p class="testimonial-author">— Alex M., <span class="testimonial-label">diagnosed ADHD</span></p>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-quote">"The mood check-in is genius. On bad days it gives me steps so small even a potato could do them. That's exactly what I need."</p>
+        <p class="testimonial-author">— Priya K., <span class="testimonial-label">ADHD + anxiety</span></p>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-quote">"I typed 'plan my entire business launch' and it broke it into 9 steps I could actually start. I cried a little."</p>
+        <p class="testimonial-author">— Jordan T., <span class="testimonial-label">late-diagnosed ADHD</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="cta">
+  <div class="cta-inner">
+    <span class="eyebrow">Ready to start?</span>
+    <h2 class="cta-h2">Your ADHD brain deserves a tool that gets it</h2>
+    <p class="cta-sub">Join thousands of ADHD brains who finally found a way to start — and keep going.</p>
+    <a href="https://app.dopamint.app/signup" class="btn-cta">Get Started Free →</a>
+    <div class="cta-cards">
+      <!-- Card 1: Task Crusher -->
+      <div class="cta-card">
+        <div class="cta-card-header">
+          <div class="cta-card-icon">✨</div>
+          <span class="cta-card-title">Task Crusher</span>
+        </div>
+        <p class="cta-task-label">"Write my thesis introduction"</p>
+        <div class="cta-steps">
+          <div class="cta-step"><div class="cta-step-num">1</div><p class="cta-step-text">Open your laptop and create a blank doc</p></div>
+          <div class="cta-step"><div class="cta-step-num">2</div><p class="cta-step-text">Write ONE terrible sentence — it can be awful</p></div>
+          <div class="cta-step"><div class="cta-step-num">3</div><p class="cta-step-text">Set a 5-min timer and list 3 key points</p></div>
+          <div class="cta-step"><div class="cta-step-num">4</div><p class="cta-step-text">Pick the strongest and expand to 2 sentences</p></div>
+          <div class="cta-step"><div class="cta-step-num">5</div><p class="cta-step-text">Read out loud and fix anything weird</p></div>
+          <div class="cta-step"><div class="cta-step-num">6</div><p class="cta-step-text">Save and reward yourself 🎉</p></div>
+        </div>
+        <p class="cta-footer-note">✓ 6 steps · ~25 min</p>
+      </div>
+      <!-- Card 2: Brain Dump -->
+      <div class="cta-card">
+        <div class="cta-card-header">
+          <div class="cta-card-icon">🧠</div>
+          <span class="cta-card-title">Brain Dump</span>
+        </div>
+        <div class="brain-dump-input">
+          <p>"I need to call the dentist, maybe start a podcast, ugh I'm so stressed about rent..."</p>
+        </div>
+        <div class="sorted-label">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span>AI sorted</span>
+        </div>
+        <div class="dump-item"><span class="dump-tag" style="background:rgba(124,58,237,0.12);color:#7C3AED">Task</span><span class="dump-text">Call dentist</span></div>
+        <div class="dump-item"><span class="dump-tag" style="background:rgba(217,119,6,0.12);color:#D97706">Idea</span><span class="dump-text">Start a podcast</span></div>
+        <div class="dump-item"><span class="dump-tag" style="background:rgba(5,150,105,0.12);color:#059669">Venting</span><span class="dump-text">Stressed about rent</span></div>
+        <p class="cta-footer-note">✓ 3 items sorted</p>
+      </div>
+      <!-- Card 3: Mood Adaptive -->
+      <div class="cta-card">
+        <div class="cta-card-header">
+          <div class="cta-card-icon">🎯</div>
+          <span class="cta-card-title">Mood Adaptive</span>
+        </div>
+        <div class="mood-row">
+          <div class="mood-btn">🚀</div>
+          <div class="mood-btn">🌞</div>
+          <div class="mood-btn">😐</div>
+          <div class="mood-btn selected">🪫</div>
+          <div class="mood-btn">☁️</div>
+        </div>
+        <div class="mood-note"><p>🪫 <strong>Low battery day.</strong> Let's do just ONE small thing — that counts as a win.</p></div>
+        <p class="mood-steps-label">Steps adjust to your energy:</p>
+        <div class="mood-step"><div class="mood-step-num">1</div><p class="mood-step-text">Open the doc — that's it</p></div>
+        <div class="mood-step"><div class="mood-step-num">2</div><p class="mood-step-text">Write one sentence</p></div>
+        <p class="cta-footer-note">✓ Steps adjust to your energy</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section id="faq">
+  <div class="faq-inner">
+    <h2 class="faq-h2 scroll-fade">Questions from ADHD brains</h2>
+    <div class="faq-list scroll-fade">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Is there really a free version — forever?</span>
+          <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p>Yes. The Free plan gives you 5 task breakdowns every day, the Focus Timer, Mood Check-in, and your Where Was I dashboard. No time limit, no credit card. The free widget on this page also gives you 3 tries before you even sign up.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>How is DopaMint different from other tools?</span>
+          <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p>Most tools start from scratch every session — they have no memory of you. DopaMint remembers your task history, adapts to your mood, tracks your streaks, and gives you personalized weekly insights. It's a coach, not a calculator.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Do I need an ADHD diagnosis to use this?</span>
+          <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p>Absolutely not. If you experience task paralysis, time blindness, or overwhelming to-do lists, DopaMint was built for you — diagnosed or not.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Can I use DopaMint on my phone?</span>
+          <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p>Yes. DopaMint is a Progressive Web App (PWA). On mobile, tap the browser menu and select 'Add to Home Screen' for instant one-tap access.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>What happens when my 7-day trial ends?</span>
+          <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p>You automatically drop back to the Free plan — no charges, no drama. You keep your history, your streak, and access to your data forever.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>Is my data private?</span>
+          <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p>Your task data is stored securely and is never sold or shared. You can export or delete all your data any time from Settings.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>🧠 DopaMint</h3>
+        <p>Built for ADHD brains. By ADHD brains.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="https://app.dopamint.app/signup">AI Task Crusher</a>
+        <a href="https://app.dopamint.app/signup">Focus Timer</a>
+        <a href="https://app.dopamint.app/signup">Brain Dump</a>
+        <a href="https://app.dopamint.app/signup">Body Doubling Sounds</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@dopamint.app">Contact Us</a>
+      </div>
+      <div class="footer-col">
+        <h4>Follow for ADHD tips</h4>
+        <div class="footer-social">
+          <a href="#">Twitter/X</a>
+          <a href="#">Reddit</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 DopaMint. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ GATE MODAL ═══ -->
+<div id="gate-modal">
+  <div class="gate-overlay" onclick="closeGate()"></div>
+  <div class="gate-card">
+    <button class="gate-close" onclick="closeGate()">✕</button>
+    <div class="gate-emoji">🧠</div>
+    <h3 class="gate-h3">You've crushed 3 tasks! Nice work.</h3>
+    <p class="gate-p">Create a free DopaMint account for 5 breakdowns every day. Free forever. No credit card.</p>
+    <a href="https://app.dopamint.app/signup" class="btn-gate-primary">Create Free Account →</a>
+    <a href="https://app.dopamint.app/signup" class="btn-gate-secondary">Start 7-Day Pro Trial</a>
+    <p class="gate-signin">Already have an account? <a href="https://app.dopamint.app/login">Sign in →</a></p>
+  </div>
+</div>
+
+<script>
+  // ─── CONFIGURATION ───────────────────────────────────────────────────────────
+  // IMPORTANT: Replace with your actual Supabase anon key
+  // Find it in: Supabase Dashboard → Settings → API → "anon" public key
+  const SUPABASE_URL = 'https://dcngvgspafctvzitwjir.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjbmd2Z3NwYWZjdHZ6aXR3amlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0ODExMTYsImV4cCI6MjA4NzA1NzExNn0.BG13lh-ShzXy6yirEUYfQ1xS8YU2m-m4m8W86LT47JY';
+  const APP_URL = 'https://app.dopamint.app';
+
+  // ─── NAVBAR SCROLL ────────────────────────────────────────────────────────────
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 30);
+  });
+
+  // ─── GUEST USAGE TRACKING ─────────────────────────────────────────────────────
+  const MAX_FREE = 3;
+  function getGuestUsage() {
+    const today = new Date().toLocaleDateString('en-CA');
+    try {
+      const stored = JSON.parse(localStorage.getItem('dm_guest_usage') || '{}');
+      if (stored.date === today) return stored.count || 0;
+    } catch(e) {}
+    return 0;
+  }
+  function incrementGuestUsage() {
+    const today = new Date().toLocaleDateString('en-CA');
+    const count = getGuestUsage() + 1;
+    localStorage.setItem('dm_guest_usage', JSON.stringify({ date: today, count }));
+    return count;
+  }
+  function canUse() { return getGuestUsage() < MAX_FREE; }
+
+  // ─── GUEST COUNTER UI ─────────────────────────────────────────────────────────
+  function updateCounterUI() {
+    const counter = document.getElementById('guest-counter');
+    const btn = document.getElementById('crush-btn');
+    const count = getGuestUsage();
+    if (canUse()) {
+      counter.textContent = count + ' of ' + MAX_FREE + ' free uses today';
+      counter.className = 'guest-counter';
+      btn.textContent = 'Break It Down →';
+      btn.className = 'btn-crush';
+      btn.disabled = false;
+    } else {
+      counter.textContent = "You've used your " + MAX_FREE + " free breakdowns today";
+      counter.className = 'guest-counter warning';
+      btn.textContent = 'See options below ↓';
+      btn.className = 'btn-crush limit';
+      btn.disabled = true;
+    }
+  }
+  updateCounterUI();
+
+  // ─── SLIDER ───────────────────────────────────────────────────────────────────
+  const slider = document.getElementById('spiciness');
+  const sliderLabels = document.querySelectorAll('.slider-label');
+  slider.addEventListener('input', () => {
+    const val = parseInt(slider.value);
+    sliderLabels.forEach(lbl => {
+      lbl.classList.toggle('active', parseInt(lbl.dataset.val) === val);
+    });
+  });
+
+  // ─── TASK WIDGET SUBMIT ───────────────────────────────────────────────────────
+  document.getElementById('crush-btn').addEventListener('click', handleSubmit);
+
+  async function handleSubmit() {
+    if (!canUse()) { openGate(); return; }
+
+    const task = document.getElementById('task-input').value.trim();
+    const spiciness = parseInt(document.getElementById('spiciness').value);
+    const errorEl = document.getElementById('widget-error');
+    const loadingEl = document.getElementById('loading-dots');
+    const resultEl = document.getElementById('steps-result');
+    const stepsList = document.getElementById('steps-list');
+
+    if (task.length < 10) {
+      errorEl.textContent = 'Please describe your task in at least 10 characters.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    errorEl.style.display = 'none';
+    resultEl.style.display = 'none';
+    loadingEl.style.display = 'flex';
+
+    const btn = document.getElementById('crush-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="spinner" style="display:inline;width:20px;height:20px;margin-right:8px;vertical-align:middle" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="4"/><path d="M4 12a8 8 0 018-8" stroke="white" stroke-width="4" stroke-linecap="round"/></svg>DopaMint is thinking...';
+
+    try {
+      const guestToken = btoa(new Date().toDateString());
+      const res = await fetch(SUPABASE_URL + '/functions/v1/guest-crush-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'apikey': SUPABASE_ANON_KEY,
+          'x-guest-token': guestToken
+        },
+        body: JSON.stringify({ task, spiciness })
+      });
+
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const data = await res.json();
+
+      if (data.steps && Array.isArray(data.steps)) {
+        incrementGuestUsage();
+        updateCounterUI();
+        renderSteps(data.steps);
+        resultEl.style.display = 'block';
+
+        // Show gate if limit reached
+        if (!canUse()) {
+          setTimeout(() => openGate(), 1200);
+        }
+      } else {
+        throw new Error('Unexpected response');
+      }
+    } catch (e) {
+      errorEl.textContent = e.message || 'Something went wrong. Please try again.';
+      errorEl.style.display = 'block';
+    } finally {
+      loadingEl.style.display = 'none';
+      updateCounterUI();
+    }
+  }
+
+  function renderSteps(steps) {
+    const list = document.getElementById('steps-list');
+    list.innerHTML = '';
+    steps.forEach((s, i) => {
+      list.innerHTML += `
+        <div class="step-item">
+          <div class="step-num">${i + 1}</div>
+          <div class="step-content">
+            <div class="step-row">
+              <p class="step-text">${escHtml(s.step)}</p>
+              <span class="step-time">~${s.minutes} min</span>
+            </div>
+            ${s.tip ? `<p class="step-tip">${escHtml(s.tip)}</p>` : ''}
+          </div>
+        </div>`;
+    });
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ─── GATE MODAL ───────────────────────────────────────────────────────────────
+  function openGate() {
+    document.getElementById('gate-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGate() {
+    document.getElementById('gate-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ─── FAQ ACCORDION ────────────────────────────────────────────────────────────
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const chevron = btn.querySelector('.faq-chevron');
+    const isOpen = answer.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.faq-chevron').forEach(c => c.classList.remove('open'));
+    if (!isOpen) {
+      answer.classList.add('open');
+      chevron.classList.add('open');
+    }
+  }
+
+  // ─── SCROLL FADE IN ───────────────────────────────────────────────────────────
+  const fadeEls = document.querySelectorAll('.scroll-fade');
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  fadeEls.forEach(el => fadeObserver.observe(el));
+
+  // ─── STATS COUNTER ANIMATION ─────────────────────────────────────────────────
+  let statsAnimated = false;
+  let tasksCrushedValue = 1200;
+
+  // Fetch real stats
+  async function fetchStats() {
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/public_stats?id=eq.1&select=tasks_crushed', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+      });
+      const data = await res.json();
+      if (data && data[0] && data[0].tasks_crushed) {
+        tasksCrushedValue = data[0].tasks_crushed;
+        document.getElementById('tasks-badge').textContent = '🔥 ' + tasksCrushedValue.toLocaleString() + '+ tasks already crushed';
+      }
+    } catch(e) {}
+  }
+
+  // Fetch user count
+  async function fetchUserCount() {
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=count', {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer': 'count=exact',
+          'Range': '0-0'
+        }
+      });
+      const range = res.headers.get('content-range');
+      if (range) {
+        const total = parseInt(range.split('/')[1]);
+        if (total > 0) {
+          document.getElementById('user-count-strip').textContent = 'Trusted by ' + total.toLocaleString() + '+ ADHD brains';
+        }
+      }
+    } catch(e) {}
+  }
+
+  fetchStats();
+  fetchUserCount();
+
+  // Animate counter when stats section is visible
+  const statsSection = document.getElementById('stats');
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !statsAnimated) {
+        statsAnimated = true;
+        animateCounter();
+      }
+    });
+  }, { threshold: 0.3 });
+  statsObserver.observe(statsSection);
+
+  function animateCounter() {
+    const el = document.getElementById('stat-counter');
+    const duration = 1500;
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(eased * tasksCrushedValue);
+      el.textContent = current.toLocaleString() + '+';
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // ─── REF TRACKING ────────────────────────────────────────────────────────────
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if (ref) localStorage.setItem('dm_ref', ref);
+</script>
+</body>
+</html>
