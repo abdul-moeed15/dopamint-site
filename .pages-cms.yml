@@ -9,7 +9,7 @@ content:
     filename: "{fields.slug}.md"
     type: collection
     view:
-      fields: [title, date, tags]
+      fields: [title, date, tags, author]
     fields:
       - name: title
         label: "SEO Title (shown in Google)"
@@ -27,8 +27,19 @@ content:
         label: "URL Slug (e.g. why-adhd-brains-lose-focus)"
         type: string
         required: true
+      - name: coverImage
+        label: "Featured Image (upload or paste URL)"
+        type: image
+      - name: author
+        label: "Author Name"
+        type: string
+        default: "DopaMint Team"
+      - name: authorRole
+        label: "Author Role (e.g. ADHD Coach, Researcher)"
+        type: string
+        default: "ADHD Tools & Research"
       - name: tags
-        label: Tags
+        label: "Category Tag (e.g. ADHD, Productivity, Focus)"
         type: string
       - name: date
         label: Publish Date
@@ -37,6 +48,17 @@ content:
       - name: readTime
         label: "Read Time (e.g. 5 min read)"
         type: string
+      - name: sources
+        label: "Sources & References"
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: "Source Name (e.g. Harvard ADHD Study, 2023)"
+            type: string
+          - name: url
+            label: "Source URL"
+            type: string
       - name: body
         label: "Blog Content"
         type: rich-text

@@ -4,6 +4,7 @@ const matter = require('gray-matter');
 const { marked } = require('marked');
 
 const SITE_URL = 'https://dopamint.app';
+const LOGO_URL = 'https://dopamint.app/logo.png';
 const contentDir = path.join(__dirname, 'content/blog');
 const blogOutputDir = path.join(__dirname, 'blog');
 
@@ -137,13 +138,17 @@ const gradients = [
   ['#dbeafe','#93c5fd','💡'],
   ['#fce7f3','#f9a8d4','🚀'],
 ];
-function imgPlaceholder(slug, w, h, fontSize) {
+function imgPlaceholder(slug, h, fontSize) {
   const g = gradients[Math.abs((slug||'x').charCodeAt(0)) % gradients.length];
   return `<div style="width:100%;height:${h}px;background:linear-gradient(135deg,${g[0]},${g[1]});display:flex;align-items:center;justify-content:center;font-size:${fontSize}px">${g[2]}</div>`;
 }
 function coverImg(post, h, fontSize) {
   if (post.coverImage) return `<img src="${post.coverImage}" alt="${post.h1||post.title}" style="width:100%;height:${h}px;object-fit:cover">`;
-  return imgPlaceholder(post.slug, '100%', h, fontSize);
+  return imgPlaceholder(post.slug, h, fontSize);
+}
+function ogImage(post) {
+  if (post.coverImage) return post.coverImage;
+  return LOGO_URL;
 }
 
 // ─────────────────────────────────────────────
@@ -161,6 +166,34 @@ function generateTOC(html) {
 function injectIds(html) {
   let i = 0;
   return html.replace(/<h2([^>]*)>(.*?)<\/h2>/gi, (_,a,c) => `<h2${a} id="s${i++}">${c}</h2>`);
+}
+
+// ─────────────────────────────────────────────
+// SOURCES SECTION
+// ─────────────────────────────────────────────
+function sourcesSection(sources) {
+  if (!sources || !sources.length) return '';
+  const items = sources.map((s, i) => `
+    <li class="source-item">
+      <span class="source-verified" title="Verified external source">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.723 3.065 3.745 3.745 0 01-3.065.723A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.745 3.745 0 01-3.065-.723 3.745 3.745 0 01-.723-3.065A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 01.723-3.065 3.745 3.745 0 013.065-.723A3.745 3.745 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.745 3.745 0 013.065.723 3.745 3.745 0 01.723 3.065A3.745 3.745 0 0121 12z" stroke="#00b87d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Verified
+      </span>
+      <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="source-link">${s.label || s.url}</a>
+    </li>`).join('');
+  return `
+  <div class="sources-section">
+    <h2 class="sources-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" stroke="#111318" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Sources & References
+    </h2>
+    <p class="sources-note">All sources are linked to original research, studies, or publications.</p>
+    <ol class="sources-list">${items}</ol>
+  </div>`;
 }
 
 // ─────────────────────────────────────────────
@@ -237,6 +270,73 @@ function spotlightSidebar(currentSlug) {
 }
 
 // ─────────────────────────────────────────────
+// SCHEMA HELPERS
+// ─────────────────────────────────────────────
+function articleSchema(post) {
+  const author = post.author || 'DopaMint Team';
+  const image = ogImage(post);
+  const citations = (post.sources||[]).filter(s=>s.url).map(s => s.url);
+  const wordCount = (post.content||'').split(/\s+/).filter(Boolean).length;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.h1 || post.title,
+    "description": post.description || '',
+    "image": image,
+    "datePublished": post.date ? new Date(post.date).toISOString() : '',
+    "dateModified": post.date ? new Date(post.date).toISOString() : '',
+    "wordCount": wordCount,
+    "author": {
+      "@type": "Person",
+      "name": author,
+      "url": SITE_URL
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "DopaMint",
+      "url": SITE_URL,
+      "logo": {
+        "@type": "ImageObject",
+        "url": LOGO_URL
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/blog/${post.slug}/`
+    }
+  };
+  if (citations.length) schema.citation = citations.map(url => ({ "@type": "CreativeWork", "url": url }));
+  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+}
+
+function websiteSchema() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DopaMint",
+    "url": SITE_URL,
+    "description": "Science-backed tools to help ADHD brains actually start — and finish.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "DopaMint",
+      "logo": {
+        "@type": "ImageObject",
+        "url": LOGO_URL
+      }
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${SITE_URL}/blog/?q={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+}
+
+// ─────────────────────────────────────────────
 // POST PAGE CSS
 // ─────────────────────────────────────────────
 const postCSS = `
@@ -251,6 +351,7 @@ const postCSS = `
   .meta-left{display:flex;align-items:center;gap:10px}
   .meta-left .author-avatar{width:34px;height:34px;font-size:17px}
   .meta-author-name{font-size:.88rem;font-weight:600;color:var(--text)}
+  .meta-author-role{font-size:.76rem;color:var(--muted)}
   .meta-details{font-size:.8rem;color:var(--muted)}
   .share-row{display:flex;align-items:center;gap:8px}
   .share-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
@@ -275,6 +376,16 @@ const postCSS = `
   .article blockquote{border-left:3px solid var(--mint);padding:14px 20px;background:#f0fdf8;border-radius:0 10px 10px 0;margin:2rem 0;font-style:italic;color:var(--muted)}
   .article strong{color:var(--text);font-weight:600}
   .article img{border-radius:10px;margin:1.5rem 0;width:100%;border:1px solid var(--border)}
+  /* Sources */
+  .sources-section{margin-top:2.5rem;padding-top:2rem;border-top:2px solid var(--border)}
+  .sources-title{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:8px}
+  .sources-note{font-size:.8rem;color:var(--muted);margin-bottom:16px;font-style:italic}
+  .sources-list{list-style:none;display:flex;flex-direction:column;gap:10px;padding:0}
+  .source-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#f9fafb;border:1px solid var(--border);border-radius:10px;transition:border-color .2s}
+  .source-item:hover{border-color:var(--mint-dark)}
+  .source-verified{display:inline-flex;align-items:center;gap:4px;color:var(--mint-dark);font-size:.72rem;font-weight:700;white-space:nowrap;padding-top:2px;flex-shrink:0}
+  .source-link{font-size:.88rem;color:#2563eb;line-height:1.5;word-break:break-word}
+  .source-link:hover{color:var(--mint-dark);text-decoration:underline}
   /* Post sidebar */
   .post-sidebar{position:sticky;top:78px;display:flex;flex-direction:column;gap:20px}
   .sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
@@ -340,6 +451,8 @@ posts.forEach((post, idx) => {
   const postDir = path.join(blogOutputDir, post.slug);
   if (!fs.existsSync(postDir)) fs.mkdirSync(postDir, { recursive: true });
 
+  const author = post.author || 'DopaMint Team';
+  const authorRole = post.authorRole || 'ADHD Tools & Research';
   const fmtDate = new Date(post.date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   const tocItems = generateTOC(post.htmlContent);
   let articleHTML = injectIds(post.htmlContent);
@@ -356,7 +469,7 @@ posts.forEach((post, idx) => {
 
   const prev = posts[idx+1]||null;
   const next = posts[idx-1]||null;
-  const navHTML2 = (prev||next) ? `
+  const postNavHTML = (prev||next) ? `
     <div class="post-nav">
       ${prev?`<a href="/blog/${prev.slug}/" class="post-nav-card prev">
         <div class="post-nav-dir">← Previous</div>
@@ -395,20 +508,33 @@ posts.forEach((post, idx) => {
   });
   </script>` : '';
 
+  const postOgImage = ogImage(post);
+  const twitterCard = `
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${post.title}">
+  <meta name="twitter:description" content="${post.description||''}">
+  <meta name="twitter:image" content="${postOgImage}">`;
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index, follow">
   <title>${post.title}</title>
   <meta name="description" content="${post.description}">
   <meta property="og:title" content="${post.title}">
-  <meta property="og:description" content="${post.description}">
+  <meta property="og:description" content="${post.description||''}">
   <meta property="og:url" content="${SITE_URL}/blog/${post.slug}/">
   <meta property="og:type" content="article">
+  <meta property="og:image" content="${postOgImage}">
+  <meta property="article:published_time" content="${new Date(post.date).toISOString()}">
+  <meta property="article:author" content="${author}">
+  ${twitterCard}
   <link rel="canonical" href="${SITE_URL}/blog/${post.slug}/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  ${articleSchema(post)}
   <style>${sharedCSS}${postCSS}</style>
 </head>
 <body>
@@ -429,7 +555,8 @@ posts.forEach((post, idx) => {
       <div class="meta-left">
         <div class="author-avatar" style="width:34px;height:34px;font-size:17px">🧠</div>
         <div>
-          <div class="meta-author-name">DopaMint Team</div>
+          <div class="meta-author-name">${author}</div>
+          <div class="meta-author-role">${authorRole}</div>
           <div class="meta-details">${fmtDate} · ${post.readTime||'5 min read'}</div>
         </div>
       </div>
@@ -446,7 +573,10 @@ posts.forEach((post, idx) => {
 
   <div class="post-body">
     ${tocHTML}
-    <article class="article">${articleHTML}</article>
+    <article class="article">
+      ${articleHTML}
+      ${sourcesSection(post.sources)}
+    </article>
     <aside class="post-sidebar">
       ${spotlightSidebar(post.slug)}
       <div class="dm-side-card">
@@ -463,7 +593,7 @@ posts.forEach((post, idx) => {
       <span class="post-tag-chip">${post.tags||'ADHD'}</span>
       <span class="post-tag-chip">Productivity</span>
     </div>
-    ${navHTML2}
+    ${postNavHTML}
   </div>
 
   ${readNextHTML}
@@ -573,7 +703,7 @@ const featuredHTML = featured ? `
       <div class="feat-meta">
         <div class="meta-author">
           <div class="author-avatar" style="width:32px;height:32px;font-size:16px">🧠</div>
-          <span>DopaMint Team</span>
+          <span>${featured.author||'DopaMint Team'}</span>
         </div>
         <span class="meta-date">${new Date(featured.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span>
       </div>
@@ -592,7 +722,7 @@ const cardsHTML = rest.map(p => {
       <div class="card-footer">
         <div class="meta-author">
           <div class="author-avatar" style="width:28px;height:28px;font-size:14px">🧠</div>
-          <span>DopaMint Team</span>
+          <span>${p.author||'DopaMint Team'}</span>
         </div>
         <span class="meta-date">${d}</span>
       </div>
@@ -623,11 +753,21 @@ const blogIndexHTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index, follow">
   <title>ADHD Tips & Insights | DopaMint Blog</title>
   <meta name="description" content="Science-backed tips and practical strategies for ADHD brains. Beat task paralysis, build better habits, and actually get things done.">
+  <meta property="og:title" content="ADHD Tips & Insights | DopaMint Blog">
+  <meta property="og:description" content="Science-backed tips and practical strategies for ADHD brains.">
+  <meta property="og:url" content="${SITE_URL}/blog/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="${LOGO_URL}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ADHD Tips & Insights | DopaMint Blog">
+  <meta name="twitter:image" content="${LOGO_URL}">
   <link rel="canonical" href="${SITE_URL}/blog/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  ${websiteSchema()}
   <style>${sharedCSS}${blogIndexCSS}</style>
 </head>
 <body>
