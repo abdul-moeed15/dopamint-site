@@ -1,11 +1,8 @@
-name: Build Site
+name: Verify Build
 
 on:
   push:
     branches: [main]
-
-permissions:
-  contents: write
 
 jobs:
   build:
@@ -13,8 +10,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,13 +19,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build blog pages & sitemap
+      - name: Verify build runs without errors
         run: node build.js
-
-      - name: Commit built files
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add blog/ sitemap.xml
-          git diff --staged --quiet || git commit -m "Auto-build: update blog pages and sitemap [skip ci]"
-          git push origin main
