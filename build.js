@@ -14,420 +14,384 @@ if (!fs.existsSync(blogOutputDir)) fs.mkdirSync(blogOutputDir, { recursive: true
 // ─────────────────────────────────────────────
 const posts = [];
 const files = fs.readdirSync(contentDir).filter(f => f.endsWith('.md'));
-
 files.forEach(file => {
   const raw = fs.readFileSync(path.join(contentDir, file), 'utf8');
   const { data, content } = matter(raw);
   if (!data.slug) return;
   posts.push({ ...data, content, htmlContent: marked(content) });
 });
-
 posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
 // ─────────────────────────────────────────────
-// SHARED CSS
+// SHARED CSS (Light Recap-inspired theme)
 // ─────────────────────────────────────────────
 const sharedCSS = `
-  :root{--mint:#00e5a0;--bg:#0b0c10;--surface:#13151c;--surface2:#1a1d27;--border:#1f2230;--text:#e8eaf0;--muted:#7c8099;--radius:14px;--font:'Inter',system-ui,sans-serif}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:17px;line-height:1.8;-webkit-font-smoothing:antialiased}
-  a{color:var(--mint);text-decoration:none}
-  a:hover{text-decoration:underline}
-  img{max-width:100%;height:auto;display:block}
-  /* Progress bar */
-  #progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--mint);width:0%;z-index:9999;transition:width .1s linear}
-  /* Nav */
-  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(11,12,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-  .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
-  .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;color:var(--text);text-decoration:none}
-  .nav-logo span{color:var(--mint)}
-  .logo-icon{width:32px;height:32px;background:var(--mint);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
-  .nav-right{display:flex;align-items:center;gap:20px}
-  .nav-blog-link{color:var(--muted);font-size:.9rem;font-weight:500}
-  .nav-blog-link:hover{color:var(--text);text-decoration:none}
-  .btn-signin{background:transparent;border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:8px;font-size:.88rem;cursor:pointer;font-family:var(--font);text-decoration:none;display:inline-flex;align-items:center;transition:border-color .2s}
-  .btn-signin:hover{border-color:var(--mint);text-decoration:none}
-  .btn-try{background:var(--mint);color:#000;font-weight:700;padding:8px 18px;border-radius:8px;font-size:.88rem;cursor:pointer;font-family:var(--font);border:none;text-decoration:none;display:inline-flex;align-items:center;transition:opacity .2s}
-  .btn-try:hover{opacity:.9;text-decoration:none}
-  /* Breadcrumb */
-  .breadcrumb{max-width:1200px;margin:0 auto;padding:88px 24px 0;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)}
-  .breadcrumb a{color:var(--muted)}
-  .breadcrumb a:hover{color:var(--mint);text-decoration:none}
-  .breadcrumb .sep{opacity:.4}
-  .breadcrumb .current{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
-  /* Footer */
-  footer{border-top:1px solid var(--border);padding:60px 24px 40px;margin-top:80px}
-  .footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start}
-  .footer-brand p{color:var(--muted);font-size:.88rem;margin-top:8px;max-width:260px;line-height:1.6}
-  .footer-links{display:flex;gap:24px}
-  .footer-links a{color:var(--muted);font-size:.88rem}
-  .footer-links a:hover{color:var(--mint);text-decoration:none}
-  .footer-copy{max-width:1200px;margin:32px auto 0;padding-top:24px;border-top:1px solid var(--border);color:var(--muted);font-size:.82rem}
-  @media(max-width:768px){
-    .nav-inner{padding:0 16px;height:56px}
-    .breadcrumb{padding:76px 16px 0}
-    .footer-inner{grid-template-columns:1fr}
-    .footer-links{flex-wrap:wrap;gap:16px}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --mint: #00e5a0;
+    --mint-dark: #00b87d;
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --text: #111318;
+    --muted: #6b7280;
+    --light: #9ca3af;
+    --border: #e5e7eb;
+    --font: 'Inter', system-ui, sans-serif;
   }
-  @media(max-width:480px){.btn-signin{display:none}}
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  a { text-decoration: none; color: inherit; }
+  img { display: block; max-width: 100%; }
+  #progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--mint); width: 0%; z-index: 9999; transition: width .1s linear; }
+  nav { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav-inner { max-width: 1160px; margin: 0 auto; padding: 0 24px; height: 62px; display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 1.1rem; color: var(--text); }
+  .logo-mark { width: 30px; height: 30px; background: var(--mint); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a { font-size: .9rem; color: var(--muted); font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--text); color: #fff; font-weight: 700; font-size: .88rem; padding: 8px 20px; border-radius: 8px; }
+  .nav-cta:hover { background: #222; }
+  .cat-tag { display: inline-flex; align-items: center; gap: 5px; color: var(--mint-dark); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .author-avatar { background: var(--mint); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  footer { background: #fff; border-top: 1px solid var(--border); padding: 56px 24px 36px; margin-top: 0; }
+  .footer-inner { max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; }
+  .footer-brand p { color: var(--muted); font-size: .87rem; line-height: 1.7; margin-top: 10px; max-width: 200px; }
+  .footer-col h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--light); margin-bottom: 14px; }
+  .footer-col a { display: block; color: var(--muted); font-size: .88rem; margin-bottom: 9px; }
+  .footer-col a:hover { color: var(--text); }
+  .footer-bottom { max-width: 1160px; margin: 32px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .footer-bottom p { font-size: .82rem; color: var(--light); }
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .footer-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  }
 `;
 
 // ─────────────────────────────────────────────
-// NAV
+// NAV & FOOTER
 // ─────────────────────────────────────────────
 const navHTML = `
 <nav>
   <div class="nav-inner">
     <a href="/" class="nav-logo">
-      <div class="logo-icon">🧠</div>
-      Dopa<span>Mint</span>
+      <div class="logo-mark">🧠</div>
+      DopaMint
     </a>
-    <div class="nav-right">
-      <a href="/blog/" class="nav-blog-link">Blog</a>
-      <a href="https://app.dopamint.app" class="btn-signin">Sign In</a>
-      <a href="https://app.dopamint.app" class="btn-try">Try Free →</a>
-    </div>
-  </div>
-</nav>`;
-
-// ─────────────────────────────────────────────
-// FOOTER
-// ─────────────────────────────────────────────
-const footerHTML = `
-<footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <a href="/" class="nav-logo" style="display:inline-flex">
-        <div class="logo-icon">🧠</div>
-        Dopa<span style="color:var(--mint)">Mint</span>
-      </a>
-      <p>Science-backed tools to help ADHD brains actually start — and finish.</p>
-    </div>
-    <div class="footer-links">
+    <div class="nav-links">
       <a href="/blog/">Blog</a>
       <a href="https://app.dopamint.app">App</a>
       <a href="https://app.dopamint.app">Sign In</a>
     </div>
+    <a href="https://app.dopamint.app" class="nav-cta">Try Free →</a>
   </div>
-  <div class="footer-copy">© ${new Date().getFullYear()} DopaMint. All rights reserved.</div>
+</nav>`;
+
+const footerHTML = `
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="nav-logo"><div class="logo-mark">🧠</div>DopaMint</a>
+      <p>Science-backed tools to help ADHD brains actually start — and finish.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Blog</h4>
+      <a href="/blog/">All Articles</a>
+      <a href="/blog/">ADHD Tips</a>
+      <a href="/blog/">Productivity</a>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="https://app.dopamint.app">Try DopaMint</a>
+      <a href="https://app.dopamint.app">Sign In</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="/">Home</a>
+      <a href="https://app.dopamint.app">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© ${new Date().getFullYear()} DopaMint. All rights reserved.</p>
+    <p>Built for ADHD brains 🧠</p>
+  </div>
 </footer>`;
+
+const progressBarJS = `
+<script>
+window.addEventListener('scroll',()=>{
+  const d=document.documentElement;
+  document.getElementById('progress-bar').style.width=(d.scrollTop/(d.scrollHeight-d.clientHeight))*100+'%';
+});
+</script>`;
+
+// ─────────────────────────────────────────────
+// COVER IMAGE / PLACEHOLDER
+// ─────────────────────────────────────────────
+const gradients = [
+  ['#e0f7ef','#a7f3d0','🧠'],
+  ['#ede9fe','#c4b5fd','⚡'],
+  ['#fef3c7','#fcd34d','🎯'],
+  ['#fee2e2','#fca5a5','🔥'],
+  ['#dbeafe','#93c5fd','💡'],
+  ['#fce7f3','#f9a8d4','🚀'],
+];
+function imgPlaceholder(slug, w, h, fontSize) {
+  const g = gradients[Math.abs((slug||'x').charCodeAt(0)) % gradients.length];
+  return `<div style="width:100%;height:${h}px;background:linear-gradient(135deg,${g[0]},${g[1]});display:flex;align-items:center;justify-content:center;font-size:${fontSize}px">${g[2]}</div>`;
+}
+function coverImg(post, h, fontSize) {
+  if (post.coverImage) return `<img src="${post.coverImage}" alt="${post.h1||post.title}" style="width:100%;height:${h}px;object-fit:cover">`;
+  return imgPlaceholder(post.slug, '100%', h, fontSize);
+}
+
+// ─────────────────────────────────────────────
+// TOC HELPERS
+// ─────────────────────────────────────────────
+function generateTOC(html) {
+  const items = [];
+  const re = /<h2[^>]*>(.*?)<\/h2>/gi;
+  let m, i = 0;
+  while ((m = re.exec(html)) !== null) {
+    items.push({ text: m[1].replace(/<[^>]+>/g,''), id: `s${i++}` });
+  }
+  return items;
+}
+function injectIds(html) {
+  let i = 0;
+  return html.replace(/<h2([^>]*)>(.*?)<\/h2>/gi, (_,a,c) => `<h2${a} id="s${i++}">${c}</h2>`);
+}
 
 // ─────────────────────────────────────────────
 // DOPAMINT TOOL WIDGET
 // ─────────────────────────────────────────────
 const toolWidget = `
-<div class="dm-widget" id="dm-widget">
-  <div class="dm-widget-header">
-    <span class="dm-widget-badge">⚡ Try DopaMint Free</span>
-  </div>
-  <h3 class="dm-widget-title">What task are you avoiding right now?</h3>
-  <p class="dm-widget-sub">Type it below — we'll give you a dopamine-backed nudge to start.</p>
-  <div class="dm-widget-input-row">
-    <input type="text" class="dm-widget-input" id="dm-task-input" placeholder="e.g. Write the intro for my report..." maxlength="100">
-    <button class="dm-widget-btn" onclick="dmGetNudge()">Get Nudge →</button>
-  </div>
-  <div class="dm-widget-result" id="dm-result" style="display:none">
-    <div class="dm-result-text" id="dm-result-text"></div>
-    <a href="https://app.dopamint.app" class="dm-result-cta">Open DopaMint for the full experience →</a>
+<div class="dm-widget">
+  <div class="dm-widget-inner">
+    <span class="dm-badge">⚡ Try DopaMint Free</span>
+    <h3 class="dm-widget-title">What task are you avoiding right now?</h3>
+    <p class="dm-widget-sub">Type it below — get a dopamine-backed nudge to start.</p>
+    <div class="dm-row">
+      <input type="text" id="dm-input" class="dm-input" placeholder="e.g. Write the intro for my report..." maxlength="100">
+      <button class="dm-btn" onclick="dmNudge()">Get Nudge →</button>
+    </div>
+    <div id="dm-result" class="dm-result" style="display:none">
+      <p id="dm-result-text"></p>
+      <a href="https://app.dopamint.app" class="dm-result-link">Open DopaMint for the full experience →</a>
+    </div>
   </div>
 </div>
 <style>
-  .dm-widget{background:linear-gradient(135deg,rgba(0,229,160,.1),rgba(0,229,160,.04));border:1px solid rgba(0,229,160,.3);border-radius:16px;padding:28px 32px;margin:2.5rem 0}
-  .dm-widget-badge{display:inline-block;background:rgba(0,229,160,.15);color:var(--mint);padding:4px 12px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
-  .dm-widget-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px}
-  .dm-widget-sub{color:var(--muted);font-size:.9rem;margin-bottom:16px}
-  .dm-widget-input-row{display:flex;gap:10px;flex-wrap:wrap}
-  .dm-widget-input{flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:8px;font-size:.95rem;font-family:var(--font);outline:none;transition:border-color .2s}
-  .dm-widget-input:focus{border-color:var(--mint)}
-  .dm-widget-btn{background:var(--mint);color:#000;font-weight:700;padding:10px 20px;border-radius:8px;border:none;font-size:.9rem;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:opacity .2s}
-  .dm-widget-btn:hover{opacity:.85}
-  .dm-widget-result{margin-top:16px;padding:16px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)}
-  .dm-result-text{color:var(--text);font-size:.95rem;line-height:1.6;margin-bottom:12px}
-  .dm-result-cta{color:var(--mint);font-size:.88rem;font-weight:600}
+  .dm-widget{background:#f0fdf8;border:1px solid #6ee7b7;border-radius:14px;padding:28px 32px;margin:2.5rem 0}
+  .dm-badge{display:inline-block;background:#d1fae5;color:#065f46;padding:3px 12px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+  .dm-widget-title{font-size:1.15rem;font-weight:700;color:#111318;margin-bottom:7px}
+  .dm-widget-sub{color:#6b7280;font-size:.9rem;margin-bottom:14px}
+  .dm-row{display:flex;gap:10px;flex-wrap:wrap}
+  .dm-input{flex:1;min-width:200px;border:1px solid #d1d5db;border-radius:8px;padding:10px 14px;font-size:.95rem;font-family:inherit;outline:none;background:#fff;transition:border-color .2s}
+  .dm-input:focus{border-color:#00e5a0}
+  .dm-btn{background:#00b87d;color:#fff;font-weight:700;padding:10px 20px;border-radius:8px;border:none;font-size:.9rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+  .dm-btn:hover{background:#009966}
+  .dm-result{margin-top:14px;padding:14px 16px;background:#fff;border-radius:10px;border:1px solid #d1fae5}
+  .dm-result p{color:#111318;font-size:.93rem;line-height:1.65;margin-bottom:10px}
+  .dm-result-link{color:#00b87d;font-size:.87rem;font-weight:600}
   @media(max-width:480px){.dm-widget{padding:20px}}
 </style>
 <script>
-const nudges = [
-  n => \`Starting "\${n}" feels hard because your brain is waiting for the "right" moment — which never comes. Set a 2-minute timer and just open the file. That's it. DopaMint tracks your momentum so each tiny start builds on the last.\`,
-  n => \`Your brain tagged "\${n}" as overwhelming, not impossible. Break it into the smallest possible first action — not the task, just the first 30 seconds of it. DopaMint uses dopamine nudges to make that first step feel rewarding.\`,
-  n => \`"\${n}" is sitting in your working memory eating up mental energy. The fastest way to reduce that drain: spend 5 minutes on it right now, guilt-free. DopaMint's focus sessions are designed exactly for this.\`,
-  n => \`ADHD brains avoid "\${n}" because the reward feels too far away. DopaMint brings the reward closer — with streaks, nudges, and small wins that make starting feel good instead of daunting.\`,
-  n => \`The hardest part of "\${n}" is the moment before you start. Once you're in it, it gets easier. Give yourself permission to do just 10% of it today. DopaMint helps you build that habit into a system.\`
+const _nudges=[
+  t=>\`Starting "\${t}" feels hard because your brain craves certainty before it acts. Set a 2-minute timer and just open the file — that's your only goal. DopaMint tracks each tiny start so momentum builds automatically.\`,
+  t=>\`Your brain flagged "\${t}" as overwhelming, not impossible. The fix: shrink the first action to just 30 seconds. Not the task — just the opening move. DopaMint's nudges make that first step feel rewarding.\`,
+  t=>\`"\${t}" is draining mental energy sitting in your head. Spend 5 guilt-free minutes on it right now. DopaMint's focus sessions are built exactly for this moment.\`,
+  t=>\`ADHD brains avoid "\${t}" because the reward feels too distant. DopaMint closes that gap with streaks and nudges that make starting feel good instead of daunting.\`,
+  t=>\`The hardest part of "\${t}" is the second before you start. Give yourself permission to do just 10% today. DopaMint helps turn that into a habit.\`
 ];
-function dmGetNudge(){
-  const task = document.getElementById('dm-task-input').value.trim();
-  if(!task){document.getElementById('dm-task-input').focus();return;}
-  const nudge = nudges[Math.floor(Math.random()*nudges.length)](task);
-  document.getElementById('dm-result-text').textContent = nudge;
+function dmNudge(){
+  const t=document.getElementById('dm-input').value.trim();
+  if(!t){document.getElementById('dm-input').focus();return;}
+  document.getElementById('dm-result-text').textContent=_nudges[Math.floor(Math.random()*_nudges.length)](t);
   document.getElementById('dm-result').style.display='block';
   document.getElementById('dm-result').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-document.getElementById('dm-task-input').addEventListener('keydown',e=>{if(e.key==='Enter')dmGetNudge();});
+document.getElementById('dm-input').addEventListener('keydown',e=>{if(e.key==='Enter')dmNudge();});
 </script>`;
-
-// ─────────────────────────────────────────────
-// PROGRESS BAR JS
-// ─────────────────────────────────────────────
-const progressBarJS = `
-<script>
-window.addEventListener('scroll',()=>{
-  const d=document.documentElement;
-  const pct=(d.scrollTop/(d.scrollHeight-d.clientHeight))*100;
-  document.getElementById('progress-bar').style.width=pct+'%';
-});
-</script>`;
-
-// ─────────────────────────────────────────────
-// GENERATE TABLE OF CONTENTS FROM HTML
-// ─────────────────────────────────────────────
-function generateTOC(html) {
-  const headings = [];
-  const regex = /<h2[^>]*>(.*?)<\/h2>/gi;
-  let match;
-  let i = 0;
-  while ((match = regex.exec(html)) !== null) {
-    const text = match[1].replace(/<[^>]+>/g, '');
-    const id = `section-${i++}`;
-    headings.push({ text, id });
-  }
-  return headings;
-}
-
-function injectHeadingIds(html) {
-  let i = 0;
-  return html.replace(/<h2([^>]*)>(.*?)<\/h2>/gi, (_, attrs, content) => {
-    return `<h2${attrs} id="section-${i++}">${content}</h2>`;
-  });
-}
-
-// ─────────────────────────────────────────────
-// COVER IMAGE PLACEHOLDER
-// ─────────────────────────────────────────────
-function coverImageHTML(post, large = false) {
-  const h = large ? '420px' : '200px';
-  if (post.coverImage) {
-    return `<img src="${post.coverImage}" alt="${post.h1 || post.title}" style="width:100%;height:${h};object-fit:cover;border-radius:${large ? '16px' : '10px'}" loading="lazy">`;
-  }
-  const gradients = [
-    'linear-gradient(135deg,#0d3b2e,#00e5a0 120%)',
-    'linear-gradient(135deg,#1a0a2e,#7c3aed 120%)',
-    'linear-gradient(135deg,#0a1628,#3b82f6 120%)',
-    'linear-gradient(135deg,#2d0a0a,#ef4444 120%)',
-    'linear-gradient(135deg,#0a2818,#22c55e 120%)',
-  ];
-  const grad = gradients[Math.abs(post.slug.charCodeAt(0)) % gradients.length];
-  const emoji = ['🧠','⚡','🎯','🔥','💡','🚀'][Math.abs(post.slug.charCodeAt(1)||0) % 6];
-  return `<div style="width:100%;height:${h};border-radius:${large ? '16px' : '10px'};background:${grad};display:flex;align-items:center;justify-content:center;font-size:${large ? '64px' : '36px'}">${emoji}</div>`;
-}
 
 // ─────────────────────────────────────────────
 // SIDEBAR: RELATED POSTS
 // ─────────────────────────────────────────────
-function relatedPostsSidebar(currentSlug) {
+function spotlightSidebar(currentSlug) {
   const others = posts.filter(p => p.slug !== currentSlug).slice(0, 4);
   if (!others.length) return '';
-  const items = others.map(p => `
-    <a href="/blog/${p.slug}/" class="sidebar-post">
-      <div class="sidebar-post-img">${coverImageHTML(p, false)}</div>
-      <div class="sidebar-post-content">
-        <div class="sidebar-post-tag">${p.tags || 'ADHD'}</div>
-        <div class="sidebar-post-title">${p.h1 || p.title}</div>
-        <div class="sidebar-post-meta">${p.readTime || '5 min read'}</div>
-      </div>
-    </a>`).join('');
   return `
-    <div class="sidebar-section">
-      <div class="sidebar-label">SPOTLIGHT</div>
-      ${items}
-    </div>`;
+  <div class="sidebar-card">
+    <div class="sidebar-label">Spotlight</div>
+    ${others.map(p => `
+    <a href="/blog/${p.slug}/" class="spot-item">
+      <div class="spot-thumb">${coverImg(p, 58, 22)}</div>
+      <div>
+        <div class="spot-cat">${p.tags||'ADHD'}</div>
+        <div class="spot-title">${p.h1||p.title}</div>
+        <div class="spot-date">${new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+      </div>
+    </a>`).join('')}
+  </div>`;
 }
 
 // ─────────────────────────────────────────────
-// SIDEBAR: DOPAMINT CARD
-// ─────────────────────────────────────────────
-const sidebarDMCard = `
-<div class="sidebar-section">
-  <div class="dm-sidebar-card">
-    <div class="dm-sidebar-badge">🧠 Ideas Live Here</div>
-    <div class="dm-sidebar-title">Beat Task Paralysis Today</div>
-    <div class="dm-sidebar-sub">DopaMint uses dopamine-backed nudges to help ADHD brains start tasks — not just plan them.</div>
-    <a href="https://app.dopamint.app" class="dm-sidebar-btn">Try DopaMint Free →</a>
-  </div>
-</div>`;
-
-// ─────────────────────────────────────────────
-// POST CSS
+// POST PAGE CSS
 // ─────────────────────────────────────────────
 const postCSS = `
-  /* Post layout */
-  .post-header{max-width:1200px;margin:0 auto;padding:24px 24px 0}
-  .post-title-area{margin-bottom:24px}
-  .post-tag-link{display:inline-flex;align-items:center;gap:4px;color:var(--mint);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;text-decoration:none}
-  .post-tag-link:hover{text-decoration:underline}
-  .post-h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;line-height:1.2;color:var(--text);margin-bottom:12px}
-  .post-deck{font-size:1.05rem;color:var(--muted);line-height:1.7;margin-bottom:20px;max-width:680px}
-  .post-meta-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-bottom:20px;border-bottom:1px solid var(--border)}
-  .post-author{display:flex;align-items:center;gap:10px}
-  .post-author-avatar{width:36px;height:36px;background:var(--mint);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-  .post-author-name{font-size:.88rem;font-weight:600;color:var(--text)}
-  .post-author-date{font-size:.8rem;color:var(--muted)}
-  .post-share{display:flex;align-items:center;gap:10px}
-  .post-share-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .post-share-btn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;cursor:pointer;text-decoration:none;color:var(--text);transition:border-color .2s}
-  .post-share-btn:hover{border-color:var(--mint);text-decoration:none}
-  .post-cover{max-width:1200px;margin:24px auto;padding:0 24px}
-  .post-cover img,.post-cover>div{border-radius:16px;width:100%}
-  /* 3-col layout */
-  .post-body{max-width:1200px;margin:0 auto;padding:32px 24px 0;display:grid;grid-template-columns:220px 1fr 260px;gap:48px;align-items:start}
+  .breadcrumb{max-width:1160px;margin:0 auto;padding:20px 24px 0;display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted)}
+  .breadcrumb a{color:var(--muted)}
+  .breadcrumb a:hover{color:var(--text)}
+  .breadcrumb .sep{opacity:.4}
+  .post-header{max-width:1160px;margin:0 auto;padding:20px 24px 0}
+  .post-h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;line-height:1.18;letter-spacing:-.02em;color:var(--text);margin:14px 0 12px}
+  .post-deck{color:var(--muted);font-size:1rem;line-height:1.7;max-width:680px;margin-bottom:18px}
+  .post-meta-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:0}
+  .meta-left{display:flex;align-items:center;gap:10px}
+  .meta-left .author-avatar{width:34px;height:34px;font-size:17px}
+  .meta-author-name{font-size:.88rem;font-weight:600;color:var(--text)}
+  .meta-details{font-size:.8rem;color:var(--muted)}
+  .share-row{display:flex;align-items:center;gap:8px}
+  .share-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+  .share-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.78rem;cursor:pointer;color:var(--text);background:#fff;transition:border-color .2s}
+  .share-btn:hover{border-color:var(--mint-dark)}
+  .post-cover{max-width:1160px;margin:0 auto}
+  .post-cover img,.post-cover>div{width:100%;border-radius:0}
+  .post-body{max-width:1160px;margin:0 auto;padding:32px 24px 0;display:grid;grid-template-columns:200px 1fr 268px;gap:48px;align-items:start}
   /* TOC */
-  .post-toc{position:sticky;top:84px}
-  .toc-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px}
-  .toc-readtime{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-  .toc-list{list-style:none;display:flex;flex-direction:column;gap:4px}
-  .toc-list li a{color:var(--muted);font-size:.85rem;line-height:1.5;display:block;padding:4px 0;transition:color .2s;border-left:2px solid transparent;padding-left:10px}
-  .toc-list li a:hover,.toc-list li a.active{color:var(--mint);border-color:var(--mint);text-decoration:none}
+  .toc-wrap{position:sticky;top:78px}
+  .toc-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:14px}
+  .toc-readtime{font-size:.82rem;color:var(--muted);margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px}
+  .toc-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .toc-list a{font-size:.84rem;color:var(--muted);line-height:1.5;display:block;padding:4px 0 4px 10px;border-left:2px solid transparent;transition:color .2s,border-color .2s}
+  .toc-list a:hover,.toc-list a.active{color:var(--mint-dark);border-color:var(--mint-dark)}
   /* Article */
-  .post-article h2{font-size:1.45rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text);padding-top:8px}
-  .post-article h3{font-size:1.15rem;font-weight:600;margin:2rem 0 .75rem;color:var(--text)}
-  .post-article p{margin-bottom:1.4rem;color:#c5c8d6;font-size:1rem}
-  .post-article ul,.post-article ol{margin:0 0 1.4rem 1.5rem;color:#c5c8d6}
-  .post-article li{margin-bottom:.6rem;font-size:1rem}
-  .post-article blockquote{border-left:3px solid var(--mint);padding:14px 20px;background:var(--surface);border-radius:0 10px 10px 0;margin:2rem 0;font-style:italic;color:var(--muted)}
-  .post-article strong{color:var(--text);font-weight:600}
-  .post-article img{border-radius:10px;margin:1.5rem 0;width:100%}
-  .post-article figcaption{color:var(--muted);font-size:.82rem;text-align:center;margin-top:-1rem;margin-bottom:1.5rem}
+  .article h2{font-size:1.4rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text);letter-spacing:-.01em}
+  .article h3{font-size:1.15rem;font-weight:600;margin:2rem 0 .75rem;color:var(--text)}
+  .article p{margin-bottom:1.4rem;color:#374151;font-size:1rem;line-height:1.8}
+  .article ul,.article ol{margin:0 0 1.4rem 1.5rem;color:#374151}
+  .article li{margin-bottom:.6rem;font-size:1rem;line-height:1.75}
+  .article blockquote{border-left:3px solid var(--mint);padding:14px 20px;background:#f0fdf8;border-radius:0 10px 10px 0;margin:2rem 0;font-style:italic;color:var(--muted)}
+  .article strong{color:var(--text);font-weight:600}
+  .article img{border-radius:10px;margin:1.5rem 0;width:100%;border:1px solid var(--border)}
   /* Post sidebar */
-  .post-sidebar{position:sticky;top:84px;display:flex;flex-direction:column;gap:24px}
-  .sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:0}
-  .sidebar-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px}
-  .sidebar-post{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text)}
-  .sidebar-post:last-child{border-bottom:none;padding-bottom:0}
-  .sidebar-post:first-of-type{padding-top:0}
-  .sidebar-post:hover{text-decoration:none}
-  .sidebar-post-img{flex-shrink:0;width:64px;height:64px;border-radius:8px;overflow:hidden}
-  .sidebar-post-img img,.sidebar-post-img>div{width:64px!important;height:64px!important;border-radius:8px}
-  .sidebar-post-content{flex:1;min-width:0}
-  .sidebar-post-tag{font-size:.68rem;font-weight:700;color:var(--mint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-  .sidebar-post-title{font-size:.83rem;font-weight:600;line-height:1.4;color:var(--text);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .sidebar-post:hover .sidebar-post-title{color:var(--mint)}
-  .sidebar-post-meta{font-size:.75rem;color:var(--muted)}
-  /* DopaMint sidebar card */
-  .dm-sidebar-card{background:linear-gradient(135deg,rgba(0,229,160,.12),rgba(0,229,160,.04));border:1px solid rgba(0,229,160,.25);border-radius:14px;padding:20px}
-  .dm-sidebar-badge{display:inline-block;background:rgba(0,229,160,.15);color:var(--mint);padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.05em;margin-bottom:10px}
-  .dm-sidebar-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.3}
-  .dm-sidebar-sub{color:var(--muted);font-size:.82rem;line-height:1.6;margin-bottom:14px}
-  .dm-sidebar-btn{display:inline-block;background:var(--mint);color:#000;font-weight:700;padding:9px 16px;border-radius:8px;font-size:.85rem;text-decoration:none;transition:opacity .2s}
-  .dm-sidebar-btn:hover{opacity:.85;text-decoration:none}
-  /* Post footer */
-  .post-end{max-width:1200px;margin:0 auto;padding:32px 24px 0}
-  .post-tags-row{display:flex;align-items:center;gap:8px;margin-bottom:32px;flex-wrap:wrap}
-  .post-tag-chip{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:100px;font-size:.8rem}
+  .post-sidebar{position:sticky;top:78px;display:flex;flex-direction:column;gap:20px}
+  .sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .sidebar-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:14px}
+  .spot-item{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}
+  .spot-item:first-of-type{padding-top:0}
+  .spot-item:last-child{border-bottom:none;padding-bottom:0}
+  .spot-item:hover .spot-title{color:var(--mint-dark)}
+  .spot-thumb{flex-shrink:0;width:58px;height:58px;border-radius:8px;overflow:hidden}
+  .spot-thumb img,.spot-thumb>div{width:58px;height:58px;border-radius:8px}
+  .spot-cat{font-size:.68rem;font-weight:700;color:var(--mint-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .spot-title{font-size:.83rem;font-weight:600;line-height:1.4;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .spot-date{font-size:.73rem;color:var(--light);margin-top:3px}
+  /* DM sidebar card */
+  .dm-side-card{background:linear-gradient(140deg,#0b0c10,#1a2e22);border-radius:14px;padding:22px;color:#fff}
+  .dm-side-badge{display:inline-block;background:rgba(0,229,160,.18);color:var(--mint);padding:3px 11px;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.06em;margin-bottom:12px}
+  .dm-side-title{font-size:1rem;font-weight:700;line-height:1.35;margin-bottom:8px;color:#fff}
+  .dm-side-sub{font-size:.83rem;line-height:1.65;color:rgba(255,255,255,.6);margin-bottom:16px}
+  .dm-side-btn{display:inline-block;background:var(--mint);color:#000;font-weight:700;padding:9px 17px;border-radius:8px;font-size:.85rem}
+  .dm-side-btn:hover{opacity:.85}
+  /* Post end */
+  .post-end{max-width:1160px;margin:0 auto;padding:32px 24px 0}
+  .post-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+  .post-tag-chip{background:#f3f4f6;border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:100px;font-size:.8rem}
   .post-nav{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px}
-  .post-nav-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-decoration:none;color:var(--text);transition:border-color .2s}
-  .post-nav-card:hover{border-color:var(--mint);text-decoration:none}
+  .post-nav-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;color:var(--text);transition:border-color .2s}
+  .post-nav-card:hover{border-color:var(--mint-dark)}
   .post-nav-dir{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
   .post-nav-title{font-size:.9rem;font-weight:600;color:var(--text);line-height:1.4}
   .post-nav-card.next{text-align:right}
-  /* Read next */
-  .read-next{max-width:1200px;margin:0 auto;padding:0 24px 60px}
-  .read-next-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:20px}
-  .read-next-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .rn-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;text-decoration:none;color:var(--text);transition:border-color .2s,transform .2s}
-  .rn-card:hover{border-color:var(--mint);transform:translateY(-2px);text-decoration:none}
+  /* Read Next */
+  .read-next{max-width:1160px;margin:0 auto;padding:0 24px 60px}
+  .read-next-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:20px}
+  .rn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .rn-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:box-shadow .2s,transform .2s}
+  .rn-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.09);transform:translateY(-2px)}
   .rn-card-img{height:160px;overflow:hidden}
-  .rn-card-img img,.rn-card-img>div{width:100%;height:160px;border-radius:0}
-  .rn-card-body{padding:16px}
-  .rn-card-tag{font-size:.7rem;font-weight:700;color:var(--mint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-  .rn-card-title{font-size:.95rem;font-weight:700;line-height:1.4;color:var(--text);margin-bottom:8px}
-  .rn-card-meta{font-size:.78rem;color:var(--muted)}
+  .rn-card-img img,.rn-card-img>div{width:100%;height:160px}
+  .rn-body{padding:16px}
+  .rn-cat{font-size:.7rem;font-weight:700;color:var(--mint-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+  .rn-title{font-size:.95rem;font-weight:700;line-height:1.4;color:var(--text);margin-bottom:7px}
+  .rn-meta{font-size:.78rem;color:var(--muted)}
   /* Responsive */
-  @media(max-width:1024px){
-    .post-body{grid-template-columns:180px 1fr 220px;gap:32px}
-  }
-  @media(max-width:860px){
-    .post-body{grid-template-columns:1fr;gap:0}
-    .post-toc{display:none}
-    .post-sidebar{position:static;margin-top:40px}
-    .read-next-grid{grid-template-columns:1fr 1fr}
+  @media(max-width:1000px){.post-body{grid-template-columns:160px 1fr 230px;gap:32px}}
+  @media(max-width:780px){
+    .post-body{grid-template-columns:1fr}
+    .toc-wrap{display:none}
+    .post-sidebar{position:static;margin-top:36px}
+    .rn-grid{grid-template-columns:1fr 1fr}
     .post-nav{grid-template-columns:1fr}
   }
-  @media(max-width:560px){
-    .post-h1{font-size:1.7rem}
-    .read-next-grid{grid-template-columns:1fr}
-    .post-cover{padding:0 16px}
+  @media(max-width:520px){
+    .post-h1{font-size:1.65rem}
+    .rn-grid{grid-template-columns:1fr}
     .post-header,.post-body,.post-end,.read-next{padding-left:16px;padding-right:16px}
   }
 `;
 
 // ─────────────────────────────────────────────
-// BUILD INDIVIDUAL BLOG POSTS
+// BUILD INDIVIDUAL POST PAGES
 // ─────────────────────────────────────────────
 posts.forEach((post, idx) => {
   const postDir = path.join(blogOutputDir, post.slug);
   if (!fs.existsSync(postDir)) fs.mkdirSync(postDir, { recursive: true });
 
-  const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric'
-  });
-
+  const fmtDate = new Date(post.date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   const tocItems = generateTOC(post.htmlContent);
-  const articleHTML = injectHeadingIds(post.htmlContent);
-
-  // Replace [tool] marker with the widget
-  const articleWithWidget = articleHTML.replace(/<p>\[tool\]<\/p>/gi, toolWidget);
+  let articleHTML = injectIds(post.htmlContent);
+  articleHTML = articleHTML.replace(/<p>\[tool\]<\/p>/gi, toolWidget);
 
   const tocHTML = tocItems.length ? `
-    <div class="post-toc">
-      <div class="toc-readtime">⏱ ${post.readTime || '5 min read'}</div>
+    <div class="toc-wrap">
+      <div class="toc-readtime">⏱ ${post.readTime||'5 min read'}</div>
       <div class="toc-label">Contents</div>
       <ul class="toc-list">
-        ${tocItems.map(h => `<li><a href="#${h.id}">${h.text}</a></li>`).join('')}
+        ${tocItems.map(h=>`<li><a href="#${h.id}">${h.text}</a></li>`).join('')}
       </ul>
-    </div>` : `<div class="post-toc"></div>`;
+    </div>` : `<div></div>`;
 
-  const prevPost = posts[idx + 1] || null;
-  const nextPost = posts[idx - 1] || null;
-
-  const postNavHTML = (prevPost || nextPost) ? `
+  const prev = posts[idx+1]||null;
+  const next = posts[idx-1]||null;
+  const navHTML2 = (prev||next) ? `
     <div class="post-nav">
-      ${prevPost ? `<a href="/blog/${prevPost.slug}/" class="post-nav-card prev">
+      ${prev?`<a href="/blog/${prev.slug}/" class="post-nav-card prev">
         <div class="post-nav-dir">← Previous</div>
-        <div class="post-nav-title">${prevPost.h1 || prevPost.title}</div>
-      </a>` : '<div></div>'}
-      ${nextPost ? `<a href="/blog/${nextPost.slug}/" class="post-nav-card next">
+        <div class="post-nav-title">${prev.h1||prev.title}</div>
+      </a>`:'<div></div>'}
+      ${next?`<a href="/blog/${next.slug}/" class="post-nav-card next">
         <div class="post-nav-dir">Next →</div>
-        <div class="post-nav-title">${nextPost.h1 || nextPost.title}</div>
-      </a>` : '<div></div>'}
+        <div class="post-nav-title">${next.h1||next.title}</div>
+      </a>`:'<div></div>'}
     </div>` : '';
 
-  const readNext = posts.filter(p => p.slug !== post.slug).slice(0, 3);
+  const readNext = posts.filter(p=>p.slug!==post.slug).slice(0,3);
   const readNextHTML = readNext.length ? `
     <div class="read-next">
       <div class="read-next-label">Read Next</div>
-      <div class="read-next-grid">
-        ${readNext.map(p => `
+      <div class="rn-grid">
+        ${readNext.map(p=>`
         <a href="/blog/${p.slug}/" class="rn-card">
-          <div class="rn-card-img">${coverImageHTML(p, false)}</div>
-          <div class="rn-card-body">
-            <div class="rn-card-tag">${p.tags || 'ADHD'}</div>
-            <div class="rn-card-title">${p.h1 || p.title}</div>
-            <div class="rn-card-meta">${new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · ${p.readTime || '5 min read'}</div>
+          <div class="rn-card-img">${coverImg(p,160,36)}</div>
+          <div class="rn-body">
+            <div class="rn-cat">${p.tags||'ADHD'}</div>
+            <div class="rn-title">${p.h1||p.title}</div>
+            <div class="rn-meta">${new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · ${p.readTime||'5 min read'}</div>
           </div>
         </a>`).join('')}
       </div>
     </div>` : '';
 
-  const tocActiveJS = tocItems.length ? `
-  <script>
-  const tocLinks = document.querySelectorAll('.toc-list a');
-  const sections = ${JSON.stringify(tocItems.map(h => h.id))}.map(id => document.getElementById(id)).filter(Boolean);
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
-    tocLinks.forEach(a => {
-      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
-    });
+  const tocActiveJS = tocItems.length ? `<script>
+  const _tl=document.querySelectorAll('.toc-list a');
+  const _sc=${JSON.stringify(tocItems.map(h=>h.id))}.map(id=>document.getElementById(id)).filter(Boolean);
+  window.addEventListener('scroll',()=>{
+    let cur='';
+    _sc.forEach(s=>{if(window.scrollY>=s.offsetTop-100)cur=s.id;});
+    _tl.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
   });
   </script>` : '';
 
@@ -442,7 +406,6 @@ posts.forEach((post, idx) => {
   <meta property="og:description" content="${post.description}">
   <meta property="og:url" content="${SITE_URL}/blog/${post.slug}/">
   <meta property="og:type" content="article">
-  <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="${SITE_URL}/blog/${post.slug}/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -452,64 +415,58 @@ posts.forEach((post, idx) => {
   <div id="progress-bar"></div>
   ${navHTML}
 
-  <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <a href="/">Home</a>
-    <span class="sep">›</span>
-    <a href="/blog/">Blog</a>
-    <span class="sep">›</span>
-    <span class="current">${post.tags || 'ADHD'}</span>
+    <a href="/">Home</a><span class="sep">›</span>
+    <a href="/blog/">Blog</a><span class="sep">›</span>
+    <span>${post.tags||'ADHD'}</span>
   </div>
 
-  <!-- Post header -->
   <div class="post-header">
-    <div class="post-title-area">
-      <a href="/blog/" class="post-tag-link">⊕ ${post.tags || 'ADHD'}</a>
-      <h1 class="post-h1">${post.h1 || post.title}</h1>
-      <p class="post-deck">${post.description}</p>
-    </div>
-    <div class="post-meta-row">
-      <div class="post-author">
-        <div class="post-author-avatar">🧠</div>
+    <div class="cat-tag">⊕ ${post.tags||'ADHD'}</div>
+    <h1 class="post-h1">${post.h1||post.title}</h1>
+    <p class="post-deck">${post.description}</p>
+    <div class="post-meta-bar">
+      <div class="meta-left">
+        <div class="author-avatar" style="width:34px;height:34px;font-size:17px">🧠</div>
         <div>
-          <div class="post-author-name">DopaMint Team</div>
-          <div class="post-author-date">${formattedDate} · ${post.readTime || '5 min read'}</div>
+          <div class="meta-author-name">DopaMint Team</div>
+          <div class="meta-details">${fmtDate} · ${post.readTime||'5 min read'}</div>
         </div>
       </div>
-      <div class="post-share">
-        <span class="post-share-label">Share</span>
-        <a href="https://twitter.com/intent/tweet?url=${SITE_URL}/blog/${post.slug}/&text=${encodeURIComponent(post.title)}" target="_blank" rel="noopener" class="post-share-btn" title="Share on X">𝕏</a>
-        <a href="https://www.facebook.com/sharer/sharer.php?u=${SITE_URL}/blog/${post.slug}/" target="_blank" rel="noopener" class="post-share-btn" title="Share on Facebook">f</a>
-        <button class="post-share-btn" onclick="navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied!'))" title="Copy link">🔗</button>
+      <div class="share-row">
+        <span class="share-label">Share</span>
+        <a href="https://twitter.com/intent/tweet?url=${SITE_URL}/blog/${post.slug}/&text=${encodeURIComponent(post.title)}" target="_blank" rel="noopener" class="share-btn">𝕏</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${SITE_URL}/blog/${post.slug}/" target="_blank" rel="noopener" class="share-btn">f</a>
+        <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied!'))">🔗</button>
       </div>
     </div>
   </div>
 
-  <!-- Cover image -->
-  <div class="post-cover">${coverImageHTML(post, true)}</div>
+  <div class="post-cover">${coverImg(post, 480, 72)}</div>
 
-  <!-- 3-column body -->
   <div class="post-body">
     ${tocHTML}
-    <article class="post-article">${articleWithWidget}</article>
+    <article class="article">${articleHTML}</article>
     <aside class="post-sidebar">
-      ${relatedPostsSidebar(post.slug)}
-      ${sidebarDMCard}
+      ${spotlightSidebar(post.slug)}
+      <div class="dm-side-card">
+        <div class="dm-side-badge">🧠 Try it Free</div>
+        <div class="dm-side-title">Beat Task Paralysis Today</div>
+        <div class="dm-side-sub">Dopamine-backed nudges to help ADHD brains start — not just plan.</div>
+        <a href="https://app.dopamint.app" class="dm-side-btn">Try DopaMint →</a>
+      </div>
     </aside>
   </div>
 
-  <!-- Post end -->
   <div class="post-end">
-    <div class="post-tags-row">
-      <span class="post-tag-chip">${post.tags || 'ADHD'}</span>
+    <div class="post-tags">
+      <span class="post-tag-chip">${post.tags||'ADHD'}</span>
       <span class="post-tag-chip">Productivity</span>
     </div>
-    ${postNavHTML}
+    ${navHTML2}
   </div>
 
-  <!-- Read Next -->
   ${readNextHTML}
-
   ${footerHTML}
   ${progressBarJS}
   ${tocActiveJS}
@@ -521,138 +478,145 @@ posts.forEach((post, idx) => {
 });
 
 // ─────────────────────────────────────────────
-// BLOG INDEX CSS
+// BUILD BLOG INDEX
 // ─────────────────────────────────────────────
 const blogIndexCSS = `
-  /* Hero */
-  .blog-hero{padding:110px 24px 60px;text-align:center;position:relative;overflow:hidden}
-  .blog-hero::before{content:'';position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(0,229,160,.1) 0%,transparent 65%);pointer-events:none;z-index:0}
-  .blog-hero-inner{position:relative;z-index:1}
-  .blog-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.2);border-radius:100px;padding:5px 14px;font-size:.78rem;font-weight:600;color:var(--mint);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
-  .blog-hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,#fff 50%,var(--mint));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-  .blog-hero .hero-sub{color:var(--muted);font-size:1.05rem;max-width:500px;margin:0 auto;line-height:1.7}
-  /* Featured post */
-  .blog-main{max-width:1200px;margin:0 auto;padding:0 24px 80px}
-  .featured-post{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:48px;text-decoration:none;color:var(--text);transition:border-color .25s,transform .25s}
-  .featured-post:hover{border-color:var(--mint);transform:translateY(-3px);text-decoration:none}
-  .featured-post-img{height:360px;overflow:hidden}
-  .featured-post-img img,.featured-post-img>div{width:100%;height:360px;border-radius:0}
-  .featured-post-body{padding:40px;display:flex;flex-direction:column;justify-content:center}
-  .featured-tag{display:inline-block;color:var(--mint);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
-  .featured-title{font-size:1.6rem;font-weight:800;line-height:1.25;color:var(--text);margin-bottom:14px}
-  .featured-desc{color:var(--muted);font-size:.95rem;line-height:1.7;margin-bottom:24px}
-  .featured-meta{display:flex;align-items:center;gap:12px}
-  .featured-author-avatar{width:32px;height:32px;background:var(--mint);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-  .featured-meta-text{font-size:.82rem;color:var(--muted)}
-  .featured-meta-text strong{color:var(--text);font-weight:600}
-  /* Content grid */
-  .blog-content{display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start}
-  .posts-col{}
-  .section-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:20px}
-  .posts-list{display:flex;flex-direction:column;gap:16px}
-  .post-card{display:grid;grid-template-columns:180px 1fr;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;text-decoration:none;color:var(--text);transition:border-color .2s,transform .2s}
-  .post-card:hover{border-color:var(--mint);transform:translateY(-2px);text-decoration:none}
-  .post-card-img{height:140px;overflow:hidden}
-  .post-card-img img,.post-card-img>div{width:180px!important;height:140px!important;border-radius:0}
-  .post-card-body{padding:20px}
-  .post-card-tag{font-size:.7rem;font-weight:700;color:var(--mint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-  .post-card-title{font-size:1rem;font-weight:700;line-height:1.4;color:var(--text);margin-bottom:8px}
-  .post-card-desc{color:var(--muted);font-size:.85rem;line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .post-card-meta{font-size:.78rem;color:var(--muted)}
-  /* Index sidebar */
-  .index-sidebar{position:sticky;top:84px;display:flex;flex-direction:column;gap:20px}
-  .index-sidebar .sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
-  .index-sidebar .sidebar-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:14px}
-  .spotlight-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text)}
-  .spotlight-item:last-child{border-bottom:none;padding-bottom:0}
-  .spotlight-item:first-of-type{padding-top:0}
-  .spotlight-item:hover{text-decoration:none}
-  .spotlight-img{flex-shrink:0;width:60px;height:60px;border-radius:8px;overflow:hidden}
-  .spotlight-img img,.spotlight-img>div{width:60px!important;height:60px!important;border-radius:8px}
-  .spotlight-tag{font-size:.68rem;font-weight:700;color:var(--mint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
-  .spotlight-title{font-size:.83rem;font-weight:600;line-height:1.4;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .spotlight-item:hover .spotlight-title{color:var(--mint)}
-  .spotlight-date{font-size:.75rem;color:var(--muted);margin-top:2px}
-  /* Empty */
-  .empty-wrap{grid-column:1/-1;text-align:center;padding:80px 24px;background:var(--surface);border:1px solid var(--border);border-radius:20px}
-  .empty-icon{font-size:3rem;margin-bottom:20px}
-  .empty-wrap h3{font-size:1.4rem;font-weight:700;margin-bottom:12px}
-  .empty-wrap p{color:var(--muted);max-width:400px;margin:0 auto 24px;font-size:.95rem}
+  .hero{max-width:680px;margin:0 auto;padding:72px 24px 56px;text-align:center}
+  .hero-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:22px;background:#fff}
+  .hero-pill .dot{color:var(--mint-dark)}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:800;line-height:1.12;letter-spacing:-.02em;margin-bottom:16px;color:var(--text)}
+  .hero h1 .hl{background:linear-gradient(120deg,rgba(0,229,160,.28) 0%,rgba(0,229,160,.12) 100%);border-radius:4px;padding:0 6px}
+  .hero-sub{color:var(--muted);font-size:1rem;line-height:1.75;max-width:440px;margin:0 auto 28px}
+  .hero-author{display:inline-flex;align-items:center;gap:10px}
+  .hero-author .author-avatar{width:36px;height:36px;font-size:18px}
+  .hero-author-name{font-size:.88rem;font-weight:600;text-align:left}
+  .hero-author-role{font-size:.78rem;color:var(--muted)}
+  .main{max-width:1160px;margin:0 auto;padding:0 24px 100px}
+  /* Featured */
+  .featured{display:grid;grid-template-columns:1.1fr 1fr;background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:48px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);transition:box-shadow .2s,transform .2s}
+  .featured:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px)}
+  .feat-img{overflow:hidden;min-height:340px}
+  .feat-img img,.feat-img>div{width:100%;height:100%;object-fit:cover;min-height:340px}
+  .feat-body{padding:44px 40px;display:flex;flex-direction:column;justify-content:space-between}
+  .feat-title{font-size:1.6rem;font-weight:800;line-height:1.25;letter-spacing:-.01em;color:var(--text);margin:12px 0 12px}
+  .feat-desc{color:var(--muted);font-size:.95rem;line-height:1.7}
+  .feat-meta{display:flex;align-items:center;justify-content:space-between;margin-top:28px;padding-top:18px;border-top:1px solid var(--border)}
+  .feat-meta .meta-author{display:flex;align-items:center;gap:9px}
+  .feat-meta .author-avatar{width:32px;height:32px;font-size:16px}
+  .feat-meta .meta-author span{font-size:.86rem;font-weight:600}
+  .feat-meta .meta-date{font-size:.82rem;color:var(--muted)}
+  /* Grid */
+  .content-grid{display:grid;grid-template-columns:1fr 280px;gap:40px;align-items:start}
+  .posts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .post-card{background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 1px 6px rgba(0,0,0,.04);display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s}
+  .post-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.09);transform:translateY(-2px)}
+  .card-img{overflow:hidden;height:200px}
+  .card-img img,.card-img>div{width:100%;height:200px;object-fit:cover}
+  .card-body{padding:20px 20px 22px;flex:1;display:flex;flex-direction:column}
+  .card-body .cat-tag{margin-bottom:10px}
+  .card-title{font-size:1.02rem;font-weight:700;line-height:1.38;color:var(--text);margin-bottom:10px;letter-spacing:-.005em}
+  .card-desc{color:var(--muted);font-size:.86rem;line-height:1.65;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:16px}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border)}
+  .card-footer .meta-author{display:flex;align-items:center;gap:8px}
+  .card-footer .author-avatar{width:28px;height:28px;font-size:14px}
+  .card-footer .meta-author span{font-size:.82rem;font-weight:500}
+  .card-footer .meta-date{font-size:.78rem;color:var(--muted)}
+  /* Sidebar */
+  .idx-sidebar{position:sticky;top:74px;display:flex;flex-direction:column;gap:20px}
+  .sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+  .sidebar-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:16px}
+  .spot-item{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}
+  .spot-item:first-of-type{padding-top:0}
+  .spot-item:last-child{border-bottom:none;padding-bottom:0}
+  .spot-item:hover .spot-title{color:var(--mint-dark)}
+  .spot-thumb{flex-shrink:0;width:58px;height:58px;border-radius:8px;overflow:hidden}
+  .spot-thumb img,.spot-thumb>div{width:58px;height:58px;border-radius:8px}
+  .spot-cat{font-size:.68rem;font-weight:700;color:var(--mint-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .spot-title{font-size:.83rem;font-weight:600;line-height:1.4;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .spot-date{font-size:.73rem;color:var(--light);margin-top:3px}
+  .dm-cta-card{background:linear-gradient(140deg,#0b0c10,#1a2e22);border-radius:14px;padding:22px;color:#fff}
+  .dm-cta-badge{display:inline-block;background:rgba(0,229,160,.18);color:var(--mint);padding:3px 11px;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.06em;margin-bottom:12px}
+  .dm-cta-title{font-size:1rem;font-weight:700;line-height:1.35;margin-bottom:8px;color:#fff}
+  .dm-cta-sub{font-size:.83rem;line-height:1.65;color:rgba(255,255,255,.6);margin-bottom:16px}
+  .dm-cta-btn{display:inline-block;background:var(--mint);color:#000;font-weight:700;padding:9px 17px;border-radius:8px;font-size:.85rem}
+  .dm-cta-btn:hover{opacity:.85}
   /* Responsive */
-  @media(max-width:900px){
-    .featured-post{grid-template-columns:1fr}
-    .featured-post-img{height:260px}
-    .featured-post-img img,.featured-post-img>div{height:260px}
-    .blog-content{grid-template-columns:1fr}
-    .index-sidebar{position:static}
+  @media(max-width:960px){
+    .featured{grid-template-columns:1fr}
+    .feat-img{min-height:240px}
+    .feat-img>div{min-height:240px}
+    .content-grid{grid-template-columns:1fr}
+    .idx-sidebar{position:static}
   }
-  @media(max-width:600px){
-    .blog-hero{padding:90px 16px 48px}
-    .blog-main{padding:0 16px 60px}
-    .post-card{grid-template-columns:1fr}
-    .post-card-img{height:180px}
-    .post-card-img img,.post-card-img>div{width:100%!important;height:180px!important}
-    .featured-post-body{padding:24px}
-    .featured-title{font-size:1.3rem}
+  @media(max-width:640px){
+    .hero{padding:52px 16px 40px}
+    .main{padding:0 16px 80px}
+    .posts-grid{grid-template-columns:1fr}
+    .feat-body{padding:24px 20px}
+    .feat-title{font-size:1.3rem}
   }
 `;
 
-// ─────────────────────────────────────────────
-// BUILD BLOG INDEX
-// ─────────────────────────────────────────────
-const featuredPost = posts[0] || null;
-const remainingPosts = posts.slice(1);
-const spotlightPosts = posts.slice(0, 4);
+const featured = posts[0]||null;
+const rest = posts.slice(1);
+const spotlightPosts = posts.slice(0,4);
 
-const featuredHTML = featuredPost ? `
-  <a href="/blog/${featuredPost.slug}/" class="featured-post">
-    <div class="featured-post-img">${coverImageHTML(featuredPost, true)}</div>
-    <div class="featured-post-body">
-      <span class="featured-tag">⊕ ${featuredPost.tags || 'ADHD'}</span>
-      <div class="featured-title">${featuredPost.h1 || featuredPost.title}</div>
-      <div class="featured-desc">${featuredPost.description}</div>
-      <div class="featured-meta">
-        <div class="featured-author-avatar">🧠</div>
-        <div class="featured-meta-text">
-          <strong>DopaMint Team</strong> · ${new Date(featuredPost.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})} · ${featuredPost.readTime || '5 min read'}
+const featuredHTML = featured ? `
+  <a href="/blog/${featured.slug}/" class="featured">
+    <div class="feat-img">${coverImg(featured, 340, 72)}</div>
+    <div class="feat-body">
+      <div>
+        <div class="cat-tag">⊕ ${featured.tags||'ADHD'}</div>
+        <div class="feat-title">${featured.h1||featured.title}</div>
+        <div class="feat-desc">${featured.description}</div>
+      </div>
+      <div class="feat-meta">
+        <div class="meta-author">
+          <div class="author-avatar" style="width:32px;height:32px;font-size:16px">🧠</div>
+          <span>DopaMint Team</span>
         </div>
+        <span class="meta-date">${new Date(featured.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span>
       </div>
     </div>
   </a>` : '';
 
-const postsListHTML = remainingPosts.map(post => {
-  const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric'
-  });
+const cardsHTML = rest.map(p => {
+  const d = new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   return `
-  <a href="/blog/${post.slug}/" class="post-card">
-    <div class="post-card-img">${coverImageHTML(post, false)}</div>
-    <div class="post-card-body">
-      <div class="post-card-tag">${post.tags || 'ADHD'}</div>
-      <div class="post-card-title">${post.h1 || post.title}</div>
-      <div class="post-card-desc">${post.description}</div>
-      <div class="post-card-meta">${formattedDate} · ${post.readTime || '5 min read'}</div>
+  <a href="/blog/${p.slug}/" class="post-card">
+    <div class="card-img">${coverImg(p, 200, 48)}</div>
+    <div class="card-body">
+      <div class="cat-tag">⊕ ${p.tags||'ADHD'}</div>
+      <div class="card-title">${p.h1||p.title}</div>
+      <div class="card-desc">${p.description}</div>
+      <div class="card-footer">
+        <div class="meta-author">
+          <div class="author-avatar" style="width:28px;height:28px;font-size:14px">🧠</div>
+          <span>DopaMint Team</span>
+        </div>
+        <span class="meta-date">${d}</span>
+      </div>
     </div>
   </a>`;
 }).join('');
 
-const spotlightHTML = spotlightPosts.map(post => `
-  <a href="/blog/${post.slug}/" class="spotlight-item">
-    <div class="spotlight-img">${coverImageHTML(post, false)}</div>
+const spotHTML = spotlightPosts.map(p => `
+  <a href="/blog/${p.slug}/" class="spot-item">
+    <div class="spot-thumb">${coverImg(p, 58, 22)}</div>
     <div>
-      <div class="spotlight-tag">${post.tags || 'ADHD'}</div>
-      <div class="spotlight-title">${post.h1 || post.title}</div>
-      <div class="spotlight-date">${new Date(post.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+      <div class="spot-cat">${p.tags||'ADHD'}</div>
+      <div class="spot-title">${p.h1||p.title}</div>
+      <div class="spot-date">${new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
     </div>
   </a>`).join('');
 
-const emptyHTML = posts.length === 0 ? `
-  <div class="empty-wrap">
-    <div class="empty-icon">🧠</div>
-    <h3>First posts dropping soon</h3>
-    <p>We're writing science-backed guides to help ADHD brains actually get things done.</p>
-    <a href="https://app.dopamint.app" class="btn-try" style="display:inline-flex;margin-top:8px">Try DopaMint Free →</a>
-  </div>` : '';
+const emptyHTML = `
+  <div style="grid-column:1/-1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:64px 32px;text-align:center">
+    <div style="font-size:3rem;margin-bottom:16px">🧠</div>
+    <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:10px">First posts dropping soon</h3>
+    <p style="color:var(--muted);font-size:.93rem;max-width:360px;margin:0 auto 22px;line-height:1.7">Science-backed guides to help ADHD brains actually get things done.</p>
+    <a href="https://app.dopamint.app" style="display:inline-block;background:var(--text);color:#fff;font-weight:700;padding:10px 22px;border-radius:8px;font-size:.9rem">Try DopaMint Free →</a>
+  </div>`;
 
 const blogIndexHTML = `<!DOCTYPE html>
 <html lang="en">
@@ -660,7 +624,7 @@ const blogIndexHTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ADHD Tips & Insights | DopaMint Blog</title>
-  <meta name="description" content="Science-backed tips, neuroscience insights, and practical strategies for ADHD brains. Learn how to beat task paralysis, build habits, and get things done.">
+  <meta name="description" content="Science-backed tips and practical strategies for ADHD brains. Beat task paralysis, build better habits, and actually get things done.">
   <link rel="canonical" href="${SITE_URL}/blog/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -668,38 +632,39 @@ const blogIndexHTML = `<!DOCTYPE html>
 </head>
 <body>
   ${navHTML}
-
-  <div class="blog-hero">
-    <div class="blog-hero-inner">
-      <div class="blog-pill">✦ The ADHD Brain Blog</div>
-      <h1>Science-backed tips<br>for ADHD brains</h1>
-      <p class="hero-sub">No fluff. No generic advice. Real strategies rooted in neuroscience — written for people who actually have ADHD.</p>
+  <div class="hero">
+    <div class="hero-pill"><span class="dot">✦</span> ADHD Insights</div>
+    <h1>Tips for Brains That<br>Think <span class="hl">Differently</span></h1>
+    <p class="hero-sub">No generic advice. Science-backed strategies written for people who actually have ADHD.</p>
+    <div class="hero-author">
+      <div class="author-avatar" style="width:36px;height:36px;font-size:18px">🧠</div>
+      <div>
+        <div class="hero-author-name">DopaMint Team</div>
+        <div class="hero-author-role">ADHD Tools & Research</div>
+      </div>
     </div>
   </div>
-
-  <div class="blog-main">
-    ${posts.length === 0 ? `<div class="blog-content">${emptyHTML}</div>` : `
+  <div class="main">
     ${featuredHTML}
-    <div class="blog-content">
-      <div class="posts-col">
-        ${remainingPosts.length ? `<div class="section-label">Latest Articles</div><div class="posts-list">${postsListHTML}</div>` : ''}
+    <div class="content-grid">
+      <div>
+        ${rest.length ? `<div class="posts-grid">${cardsHTML}</div>` : `<div class="posts-grid">${emptyHTML}</div>`}
       </div>
-      <aside class="index-sidebar">
+      <aside class="idx-sidebar">
         ${spotlightPosts.length ? `
-        <div class="sidebar-section">
+        <div class="sidebar-card">
           <div class="sidebar-label">Spotlight</div>
-          ${spotlightHTML}
+          ${spotHTML}
         </div>` : ''}
-        <div class="dm-sidebar-card" style="background:linear-gradient(135deg,rgba(0,229,160,.12),rgba(0,229,160,.04));border:1px solid rgba(0,229,160,.25);border-radius:14px;padding:20px">
-          <div class="dm-sidebar-badge" style="display:inline-block;background:rgba(0,229,160,.15);color:var(--mint);padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.05em;margin-bottom:10px">🧠 Try it Free</div>
-          <div class="dm-sidebar-title" style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.3">Beat Task Paralysis Today</div>
-          <div class="dm-sidebar-sub" style="color:var(--muted);font-size:.82rem;line-height:1.6;margin-bottom:14px">DopaMint uses dopamine-backed nudges to help ADHD brains start tasks — not just plan them.</div>
-          <a href="https://app.dopamint.app" class="dm-sidebar-btn" style="display:inline-block;background:var(--mint);color:#000;font-weight:700;padding:9px 16px;border-radius:8px;font-size:.85rem;text-decoration:none">Try DopaMint Free →</a>
+        <div class="dm-cta-card">
+          <div class="dm-cta-badge">🧠 Try it Free</div>
+          <div class="dm-cta-title">Beat Task Paralysis Today</div>
+          <div class="dm-cta-sub">DopaMint uses dopamine-backed nudges to help ADHD brains start tasks — not just plan them.</div>
+          <a href="https://app.dopamint.app" class="dm-cta-btn">Try DopaMint →</a>
         </div>
       </aside>
-    </div>`}
+    </div>
   </div>
-
   ${footerHTML}
 </body>
 </html>`;
@@ -708,23 +673,17 @@ fs.writeFileSync(path.join(blogOutputDir, 'index.html'), blogIndexHTML);
 console.log('✅ Built: /blog/');
 
 // ─────────────────────────────────────────────
-// GENERATE SITEMAP
+// SITEMAP
 // ─────────────────────────────────────────────
-const sitemapUrls = [
-  { url: `${SITE_URL}/`, priority: '1.0' },
-  { url: `${SITE_URL}/blog/`, priority: '0.8' },
-  ...posts.map(p => ({ url: `${SITE_URL}/blog/${p.slug}/`, priority: '0.7' }))
+const urls = [
+  {url:`${SITE_URL}/`,p:'1.0'},
+  {url:`${SITE_URL}/blog/`,p:'0.8'},
+  ...posts.map(p=>({url:`${SITE_URL}/blog/${p.slug}/`,p:'0.7'}))
 ];
-
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapUrls.map(({ url, priority }) => `  <url>
-    <loc>${url}</loc>
-    <priority>${priority}</priority>
-    <changefreq>weekly</changefreq>
-  </url>`).join('\n')}
+${urls.map(({url,p})=>`  <url><loc>${url}</loc><priority>${p}</priority><changefreq>weekly</changefreq></url>`).join('\n')}
 </urlset>`;
-
-fs.writeFileSync(path.join(__dirname, 'sitemap.xml'), sitemap);
-console.log(`✅ Sitemap generated with ${sitemapUrls.length} URLs`);
+fs.writeFileSync(path.join(__dirname,'sitemap.xml'),sitemap);
+console.log(`✅ Sitemap: ${urls.length} URLs`);
 console.log('\n🚀 Build complete!');
