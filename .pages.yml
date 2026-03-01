@@ -1,0 +1,42 @@
+media:
+  input: public/images
+  output: /images
+
+content:
+  - name: blog
+    label: Blog Posts
+    path: content/blog
+    filename: "{fields.slug}.md"
+    type: collection
+    view:
+      fields: [title, date, tags]
+    fields:
+      - name: title
+        label: "SEO Title (shown in Google)"
+        type: string
+        required: true
+      - name: h1
+        label: "Page Heading (shown on page)"
+        type: string
+        required: true
+      - name: description
+        label: "Meta Description (shown in Google, 150 chars)"
+        type: string
+        required: true
+      - name: slug
+        label: "URL Slug (e.g. why-adhd-brains-lose-focus)"
+        type: string
+        required: true
+      - name: tags
+        label: Tags
+        type: string
+      - name: date
+        label: Publish Date
+        type: date
+        required: true
+      - name: readTime
+        label: "Read Time (e.g. 5 min read)"
+        type: string
+      - name: body
+        label: "Blog Content"
+        type: rich-text
