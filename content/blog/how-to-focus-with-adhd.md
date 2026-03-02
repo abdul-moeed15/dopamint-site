@@ -4,6 +4,7 @@ h1: How to Focus with ADHD? [12 Tips Backed By Research]
 description: ADHD makes focusing hard. Learn how ADHD affects focus &
   productivity with 12 research-backed tips to help improve your focus.
 slug: How-to-Focus-with-ADHD
+coverImage: /images/how-to-focus-with-adhd.jpg
 author: Jessica Rae
 authorRole: ADHD Researcher
 tags: ADHD Focus
