@@ -68,6 +68,8 @@ ADHD may affect your ability to predict or regulate this variation, which is why
 
 This is something DopaMint handles with a daily mood and energy check-in that adapts its task recommendations accordingly. It's a small thing, but it removes one more decision from a brain that often loses track of its own limits.
 
+\[cta\]
+
 ### 5\. Give Every Task a Deadline, Even a Fake One
 
 ADHD brains respond well to urgency. Without a deadline, time feels shapeless, which is part of why adults with ADHD so commonly lose track of time and underestimate how long things take. Urgency creates a dopamine signal that makes it easier to start. A task with a deadline feels different to the ADHD brain than the same task without one.
