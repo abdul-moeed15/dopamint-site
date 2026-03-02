@@ -107,7 +107,7 @@ const navHTML = `
       <a href="https://app.dopamint.app">App</a>
       <a href="https://app.dopamint.app">Sign In</a>
     </div>
-    <a href="https://app.dopamint.app" class="nav-cta">Try Free →</a>
+    <a href="https://dopamint.app" class="nav-cta">Try Free →</a>
   </div>
 </nav>`;
 
@@ -126,13 +126,13 @@ const footerHTML = `
     </div>
     <div class="footer-col">
       <h4>Product</h4>
-      <a href="https://app.dopamint.app">Try DopaMint</a>
+      <a href="https://dopamint.app">Try DopaMint</a>
       <a href="https://app.dopamint.app">Sign In</a>
     </div>
     <div class="footer-col">
       <h4>Company</h4>
       <a href="/">Home</a>
-      <a href="https://app.dopamint.app">Contact</a>
+      <a href="https://dopamint.app">Contact</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -233,7 +233,7 @@ const toolWidget = `
     </div>
     <div id="dm-result" class="dm-result" style="display:none">
       <p id="dm-result-text"></p>
-      <a href="https://app.dopamint.app" class="dm-result-link">Open DopaMint for the full experience →</a>
+      <a href="https://dopamint.app" class="dm-result-link">Open DopaMint for the full experience →</a>
     </div>
   </div>
 </div>
@@ -269,6 +269,33 @@ function dmNudge(){
 }
 document.getElementById('dm-input').addEventListener('keydown',e=>{if(e.key==='Enter')dmNudge();});
 </script>`;
+
+// ─────────────────────────────────────────────
+// CTA BUTTON WIDGET ([cta] in markdown)
+// ─────────────────────────────────────────────
+const ctaWidget = `
+<div class="cta-widget">
+  <div class="cta-accent-bar"></div>
+  <span class="cta-pill">🧠 Free to Start</span>
+  <h3 class="cta-title">Ready to Stop Avoiding and Start Doing?</h3>
+  <p class="cta-sub">DopaMint breaks any task into tiny dopamine-friendly steps your brain can actually start. No guilt, no overwhelm — just momentum.</p>
+  <div class="cta-bottom">
+    <a href="https://dopamint.app" class="cta-main-btn">Try DopaMint for Free →</a>
+    <p class="cta-note">No credit card required · Free forever plan available</p>
+  </div>
+</div>
+<style>
+  .cta-widget{background:#f0fdf8;border:1px solid #6ee7b7;border-radius:14px;padding:28px 32px;margin:2.5rem 0;position:relative;overflow:hidden}
+  .cta-accent-bar{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00b87d,#6ee7b7)}
+  .cta-pill{display:inline-block;background:#d1fae5;color:#065f46;padding:3px 12px;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+  .cta-title{font-size:1.25rem;font-weight:800;color:#111318;margin-bottom:8px;line-height:1.3;letter-spacing:-.01em}
+  .cta-sub{color:#6b7280;font-size:.92rem;line-height:1.65;margin-bottom:20px;max-width:520px}
+  .cta-bottom{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .cta-main-btn{display:inline-flex;align-items:center;background:#00b87d;color:#fff;font-weight:700;font-size:.95rem;padding:11px 24px;border-radius:100px;transition:background .2s,transform .2s;white-space:nowrap}
+  .cta-main-btn:hover{background:#009966;transform:translateY(-1px)}
+  .cta-note{font-size:.78rem;color:#9ca3af;margin:0}
+  @media(max-width:520px){.cta-widget{padding:22px 20px}.cta-title{font-size:1.1rem}.cta-bottom{flex-direction:column;align-items:flex-start;gap:10px}}
+</style>`;
 
 // ─────────────────────────────────────────────
 // SIDEBAR: RELATED POSTS
@@ -479,6 +506,7 @@ posts.forEach((post, idx) => {
   const tocItems = generateTOC(post.htmlContent);
   let articleHTML = injectIds(post.htmlContent);
   articleHTML = articleHTML.replace(/<p>\[tool\]<\/p>/gi, toolWidget);
+  articleHTML = articleHTML.replace(/<p>\[cta\]<\/p>/gi, ctaWidget);
 
   const tocHTML = tocItems.length ? `
     <div class="toc-wrap">
@@ -554,6 +582,7 @@ posts.forEach((post, idx) => {
   <meta property="article:author" content="${author}">
   ${twitterCard}
   <link rel="canonical" href="${SITE_URL}/blog/${post.slug}/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300e5a0'/><text y='.9em' font-size='70' x='50%' text-anchor='middle'>🧠</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   ${articleSchema(post)}
@@ -605,7 +634,7 @@ posts.forEach((post, idx) => {
         <div class="dm-side-badge">🧠 Try it Free</div>
         <div class="dm-side-title">Beat Task Paralysis Today</div>
         <div class="dm-side-sub">Dopamine-backed nudges to help ADHD brains start — not just plan.</div>
-        <a href="https://app.dopamint.app" class="dm-side-btn">Try DopaMint →</a>
+        <a href="https://dopamint.app" class="dm-side-btn">Try DopaMint →</a>
       </div>
     </aside>
   </div>
@@ -767,7 +796,7 @@ const emptyHTML = `
     <div style="font-size:3rem;margin-bottom:16px">🧠</div>
     <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:10px">First posts dropping soon</h3>
     <p style="color:var(--muted);font-size:.93rem;max-width:360px;margin:0 auto 22px;line-height:1.7">Science-backed guides to help ADHD brains actually get things done.</p>
-    <a href="https://app.dopamint.app" style="display:inline-block;background:var(--text);color:#fff;font-weight:700;padding:10px 22px;border-radius:8px;font-size:.9rem">Try DopaMint Free →</a>
+    <a href="https://dopamint.app" style="display:inline-block;background:var(--text);color:#fff;font-weight:700;padding:10px 22px;border-radius:8px;font-size:.9rem">Try DopaMint Free →</a>
   </div>`;
 
 const blogIndexHTML = `<!DOCTYPE html>
@@ -787,6 +816,7 @@ const blogIndexHTML = `<!DOCTYPE html>
   <meta name="twitter:title" content="ADHD Tips & Insights | DopaMint Blog">
   <meta name="twitter:image" content="${LOGO_URL}">
   <link rel="canonical" href="${SITE_URL}/blog/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300e5a0'/><text y='.9em' font-size='70' x='50%' text-anchor='middle'>🧠</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   ${websiteSchema()}
@@ -822,7 +852,7 @@ const blogIndexHTML = `<!DOCTYPE html>
           <div class="dm-cta-badge">🧠 Try it Free</div>
           <div class="dm-cta-title">Beat Task Paralysis Today</div>
           <div class="dm-cta-sub">DopaMint uses dopamine-backed nudges to help ADHD brains start tasks — not just plan them.</div>
-          <a href="https://app.dopamint.app" class="dm-cta-btn">Try DopaMint →</a>
+          <a href="https://dopamint.app" class="dm-cta-btn">Try DopaMint →</a>
         </div>
       </aside>
     </div>
