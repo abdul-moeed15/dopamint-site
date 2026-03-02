@@ -11,6 +11,28 @@ const blogOutputDir = path.join(__dirname, 'blog');
 if (!fs.existsSync(blogOutputDir)) fs.mkdirSync(blogOutputDir, { recursive: true });
 
 // ─────────────────────────────────────────────
+// COPY PUBLIC/IMAGES → IMAGES/
+// So uploaded images are accessible at /images/filename
+// ─────────────────────────────────────────────
+function copyDirRecursive(src, dest) {
+  if (!fs.existsSync(src)) return;
+  if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+  fs.readdirSync(src).forEach(file => {
+    const srcPath = path.join(src, file);
+    const destPath = path.join(dest, file);
+    if (fs.statSync(srcPath).isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  });
+}
+const publicImagesDir = path.join(__dirname, 'public/images');
+const outputImagesDir = path.join(__dirname, 'images');
+copyDirRecursive(publicImagesDir, outputImagesDir);
+if (fs.existsSync(publicImagesDir)) console.log('✅ Copied: public/images → images/');
+
+// ─────────────────────────────────────────────
 // READ & PARSE POSTS
 // ─────────────────────────────────────────────
 const posts = [];
