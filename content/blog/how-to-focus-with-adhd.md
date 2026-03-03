@@ -9,6 +9,27 @@ author: Jessica Rae
 authorRole: ADHD Researcher
 tags: ADHD Focus
 date: 2026-03-02
+sources:
+  - label: "Volkow, N. D., Wang, G. J., Kollins, S. H., et al. (2009). Evaluating
+      dopamine reward pathway in ADHD: Clinical implications. JAMA, 302(10),
+      1084-1091."
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC2958516/
+  - label: " Nygaard, G., et al. (2024). The dopamine hypothesis for ADHD: An
+      evaluation of evidence accumulated from human studies and animal models.
+      Frontiers in Psychiatry, 15."
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC11604610/
+  - label: "Sun, W., Yu, M., & Zhou, X. (2022). Effects of physical exercise on
+      attention deficit and other major symptoms in children with ADHD: A
+      meta-analysis. Psychiatry Research, 311, 114509."
+    url: https://pubmed.ncbi.nlm.nih.gov/35305344/
+  - label: "Garcia-Garro, P., et al. (2025). Effects of physical activity, exercise
+      and sport on executive function in adults diagnosed with ADHD: A
+      systematic review. Brain Sciences, 6(4), 120."
+    url: https://www.mdpi.com/2673-5318/6/4/120
+  - label: 'Grover, T., et al. (2024). "It Was Something I Naturally Found Worked
+      and Heard About Later": An investigation of body doubling with
+      neurodivergent participants. ACM Transactions on Accessible Computing.'
+    url: https://dl.acm.org/doi/full/10.1145/3689648
 ---
 Focusing and ADHD have a complicated relationship. You sit down to work, and twenty minutes later you've responded to a text, reorganized your desk, and started three things without finishing any of them. Sound familiar?
 
@@ -38,7 +59,7 @@ ADHD can make task initiation genuinely difficult. When a task feels undefined o
 
 Research confirms this. Studies on ADHD and reward processing show that the brain responds to goals that feel achievable and close, not distant and vague. The closer and clearer the goal, the more likely the dopamine reward signal kicks in to help you get things done.
 
-I use DopaMint for this. You type in a task, rate how overwhelming it feels, and it breaks everything down into steps so specific your brain can't really argue with them. A task rated as highly overwhelming gets broken into steps as short as three to five minutes each, with the easiest action always first.
+I use [DopaMint](https://dopamint.app/) for this. You type in a task, rate how overwhelming it feels, and it breaks everything down into steps so specific your brain can't really argue with them. A task rated as highly overwhelming gets broken into steps as short as three to five minutes each, with the easiest action always first.
 
 \[tool\]
 
